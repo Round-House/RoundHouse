@@ -17,9 +17,9 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+RUN npm run build
+
 # Put the docker container on a port
 EXPOSE 8080
-
-RUN npm run build
 
 CMD [ "node", "dist/main" ]

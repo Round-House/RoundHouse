@@ -11,8 +11,7 @@ services:
     env_file: backend/.env
   
   postgres: 
-    image: postgres:14.2
+    image: postgres:14.3
     ports:
       - "5432:5432"
-    command: ["postgres", "-c", "log_statement=all"]
     env_file: backend/.env

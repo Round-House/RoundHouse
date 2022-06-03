@@ -93,11 +93,15 @@ export class AuthService {
         if (emailCheck.test(usernameOrEmail)) {
             usernameOrEmail = usernameOrEmail.toLocaleLowerCase();
             return from(
-                this.userRepository.findOne({ email: usernameOrEmail }),
+                this.userRepository.findOne({
+                    where: { email: usernameOrEmail },
+                }),
             );
         } else {
             return from(
-                this.userRepository.findOne({ username: usernameOrEmail }),
+                this.userRepository.findOne({
+                    where: { username: usernameOrEmail },
+                }),
             );
         }
     }
