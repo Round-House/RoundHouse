@@ -1,15 +1,49 @@
 version: "3.9"
 services:
+  # NestJS Backend
   api:
     build:
       dockerfile: Dockerfile
       context: ./backend
+
+      # Only build development stage from Dockerfile, change to "production" for production version
+      target: development
+    
     depends_on:
       - postgres
     ports:
-      - "8080:3000"
+      - "3000:3000"
+      - "9229:9229"
     env_file: backend/.env
+
+    # Mount host dir to the docker container
+    # Mount api directory (./api) to (:) docker container (/usr/src/app)
+    # Reflect File changes from host to container
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules/
+
+    # Use "npm run start:debug" for dev with debug, 
+    # or "npm run start" for production 
+    command: npm run start:debug
   
+  # Angular Frontend
+  client:
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+      target: development
+    command: npm run start
+    volumes:
+      - ./frontend:/usr/frontend/src/app
+      - /usr/frontend/src/app/node_modules
+    ports:
+      - 4200:4200
+    links:
+      - api
+
+
+  # Postgres Database
   postgres: 
     image: postgres:14.3
     ports:

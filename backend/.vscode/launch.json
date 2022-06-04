@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Debug: Roundhouse Backend",
+            "remoteRoot": "/usr/src/app",
+            "localRoot": "${workspaceFolder}",
+            "port": 9229,
+            "restart": true,
+            "address": "0.0.0.0",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        }
+    ]
+}
