@@ -27,6 +27,7 @@ export class AuthService {
                 newUser.nickname = user.nickname;
                 newUser.username = user.username;
                 newUser.password = passwordHash;
+                
 
                 return from(this.userRepository.save(newUser)).pipe(
                     map((user: User) => {
