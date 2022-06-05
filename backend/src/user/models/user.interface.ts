@@ -25,6 +25,6 @@ export interface User {
 
     //Misc
     links: string[];
-    cat: boolean;
+    isCat: boolean;
     joined: Date; 
 }

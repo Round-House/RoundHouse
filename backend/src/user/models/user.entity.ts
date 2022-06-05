@@ -63,7 +63,7 @@ export class UserEntity {
     links: string[];
 
     @Column({ default: false })
-    cat: boolean;
+    isCat: boolean;
 
     @CreateDateColumn()
     joined: Date;

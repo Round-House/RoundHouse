@@ -22,6 +22,6 @@ export interface Room {
     user: User[];
 
     //Messages
-    stream: Stream[];
+    stream: Stream;
 
 }
