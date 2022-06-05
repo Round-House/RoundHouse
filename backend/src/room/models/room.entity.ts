@@ -37,7 +37,10 @@ export class RoomEntity {
     banner: string;
 
     //Room Tree
-    @ManyToOne(() => RoomEntity, (room) => room.childRooms)
+    @Column()
+    roomAddress: string;
+
+    @ManyToOne(() => RoomEntity, (room) => room.childRooms, { nullable: true })
     parentRoom: Room;
 
     @OneToMany(() => RoomEntity, (room) => room.parentRoom)

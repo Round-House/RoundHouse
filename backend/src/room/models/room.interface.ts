@@ -13,6 +13,7 @@ export interface Room {
     banner?: string;
 
     //Room Tree
+    roomAddress: string;
     parentRoom?: Room;
     childRooms: Room[];
 
