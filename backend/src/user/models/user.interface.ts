@@ -24,7 +24,7 @@ export interface User {
     roomUser: Room[];
 
     //Misc
-    links: string[];
+    link: string;
     isCat: boolean;
     joined: Date; 
 }

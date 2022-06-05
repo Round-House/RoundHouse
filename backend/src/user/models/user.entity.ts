@@ -13,6 +13,7 @@ import {
     ManyToMany,
     JoinTable,
 } from 'typeorm';
+import "reflect-metadata"
 
 @Entity()
 export class UserEntity {
@@ -43,7 +44,7 @@ export class UserEntity {
     @OneToMany(() => MessageEntity, (message) => message.account)
     messages: Message[];
 
-    @Column()
+    @Column({type: 'json'})
     stream: Stream;
 
     //Rooms
@@ -59,8 +60,8 @@ export class UserEntity {
     roomUser: Room[];
 
     //Misc
-    @Column()
-    links: string[];
+    @Column({nullable: true})
+    link: string;
 
     @Column({ default: false })
     isCat: boolean;

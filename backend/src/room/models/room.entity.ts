@@ -56,7 +56,7 @@ export class RoomEntity {
     user: User[];
 
     //Messages
-    @Column()
+    @Column({type: 'json'})
     stream: Stream;
 
     //Logic

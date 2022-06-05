@@ -8,6 +8,7 @@ import { UserJwtDto } from '../models';
 import { CreateUserDto } from '../models/create-user.dto';
 import { LoginUserDto } from '../models/login-user.dto';
 import { User } from 'src/user/models/user.interface';
+import { StreamEntity } from 'src/stream/models/stream.entity';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -27,6 +28,7 @@ export class AuthService {
                 newUser.nickname = user.nickname;
                 newUser.username = user.username;
                 newUser.password = passwordHash;
+                newUser.stream = new StreamEntity();
                 
 
                 return from(this.userRepository.save(newUser)).pipe(
