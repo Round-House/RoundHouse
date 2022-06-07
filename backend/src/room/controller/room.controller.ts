@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 import { CreateRoomDto } from '../models/create-room.dto';
 import { Room } from '../models/room.interface';
@@ -14,7 +15,8 @@ export class RoomController {
     }
 
     @Post('/create')
-    createRoom(@Body() room: CreateRoomDto): Observable<Room> {
-        return this.roomService.createRoom(room);
+    @UseGuards(AuthGuard('jwt'))
+    createRoom(@Body() room: CreateRoomDto, @Request() req: any): Observable<Room> {
+        return this.roomService.createRoom(room, req.user);
     }
 }

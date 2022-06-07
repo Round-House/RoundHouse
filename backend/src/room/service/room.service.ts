@@ -5,9 +5,9 @@ import { Repository } from 'typeorm';
 import { CreateRoomDto } from '../models';
 import { RoomEntity } from '../models/room.entity';
 import { Room } from '../models/room.interface';
-import { ExtractJwt } from 'passport-jwt';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/user/models/user.entity';
+import { User } from 'src/user/models/user.interface';
 
 @Injectable()
 export class RoomService {
@@ -23,29 +23,27 @@ export class RoomService {
         return from(this.roomRepository.find());
     }
 
-    createRoom(roomDto: CreateRoomDto): Observable<Room> {
+    createRoom(roomDto: CreateRoomDto, user: any): Observable<Room> {
         const newRoom = new RoomEntity();
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
-        newRoom.roomAddress = roomDto.name + '.' + roomDto.parentRoomAddress;
-        
+        newRoom.roomAddress = (roomDto.parentRoomAddress ? roomDto.name + '.' : '') + roomDto.name;
+
         return from(this.roomRepository.findOne({
             where: { roomAddress: roomDto.parentRoomAddress },
         })).pipe(
-            map((parent: Room) => {
+            switchMap((parent: Room) => {
                 newRoom.parentRoom = parent;
 
-                return newRoom;
-                /*
-                from(this.userRepository.findOne({
-                    where: { username: this.jwtService.decode(ExtractJwt.fromAuthHeaderAsBearerToken().username },
+                return from(this.userRepository.findOne({
+                    where: { username: user.username },
                 })).pipe(
-                    switchMap((owner: User) => {
+                    map((owner: User) => {
                         newRoom.Owner = owner;
+                        return newRoom;
                         
                     })
                 )
-                */
             })
         )
     }
