@@ -52,11 +52,11 @@ export class RoomEntity {
 
     @ManyToMany(() => UserEntity)
     @JoinTable()
-    Moderator: User[];
+    Moderators: User[];
 
     @ManyToMany(() => UserEntity)
     @JoinTable()
-    user: User[];
+    users: User[];
 
     //Messages
     @Column({type: 'json'})
