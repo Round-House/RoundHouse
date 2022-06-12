@@ -10,6 +10,7 @@ export class CreateUserDto {
     username: string;
 
     @IsOptional()
+    @IsString()
     nickname: string;
 
     @IsNotEmpty()

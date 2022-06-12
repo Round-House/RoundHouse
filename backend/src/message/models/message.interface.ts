@@ -6,6 +6,7 @@ export interface Message {
     text: string;
     account: User;
     stream: Stream;
+    comments: Stream;
     createdAt: Date;
     updatedAt?: Date;
 }

@@ -1,5 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { User } from 'src/user/models/user.interface';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateRoomDto {
     
@@ -8,8 +7,10 @@ export class CreateRoomDto {
     name: string;
 
     @IsString()
+    @IsOptional()
     description: string;
     
     @IsString()
+    @IsOptional()
     parentRoomAddress: string;
 }

@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { CreateRoomDto } from '../models';
 import { RoomEntity } from '../models/room.entity';
 import { Room } from '../models/room.interface';
-import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
@@ -17,7 +16,6 @@ export class RoomService {
         private readonly roomRepository: Repository<RoomEntity>,
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
-        private readonly jwtService: JwtService,
     ) {}
 
     findAll(): Observable<Room[]> {
@@ -29,9 +27,11 @@ export class RoomService {
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
         newRoom.roomAddress =
-            (roomDto.parentRoomAddress ? roomDto.name + '.' : '') +
+            (roomDto.parentRoomAddress ? roomDto.parentRoomAddress + '.' : '') +
             roomDto.name;
+        newRoom.childRooms = [];
         newRoom.stream = new StreamEntity();
+        //TODO: implement STREAM in ROOM
 
         return from(
             this.roomRepository.findOne({
@@ -47,7 +47,9 @@ export class RoomService {
                     }),
                 ).pipe(
                     switchMap((owner: User) => {
-                        newRoom.Owner = owner;
+                        newRoom.owner = owner;
+                        newRoom.moderators = [];
+                        newRoom.users = [owner];
 
                         return from(this.roomRepository.save(newRoom)).pipe(
                             map((room: Room) => {

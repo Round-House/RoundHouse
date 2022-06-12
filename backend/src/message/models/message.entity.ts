@@ -25,6 +25,9 @@ export class MessageEntity {
     @ManyToOne(() => StreamEntity, (stream) => stream.messages)
     stream: Stream;
 
+    @Column({type: 'json'})
+    comments: Stream;
+
     @CreateDateColumn()
     createdAt: Date;
 

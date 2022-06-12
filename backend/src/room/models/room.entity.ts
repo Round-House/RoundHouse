@@ -48,11 +48,11 @@ export class RoomEntity {
 
     //Users
     @ManyToOne(() => UserEntity, (user) => user.roomOwner)
-    Owner: User;
+    owner: User;
 
     @ManyToMany(() => UserEntity)
     @JoinTable()
-    Moderators: User[];
+    moderators: User[];
 
     @ManyToMany(() => UserEntity)
     @JoinTable()

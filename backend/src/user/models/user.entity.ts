@@ -48,7 +48,7 @@ export class UserEntity {
     stream: Stream;
 
     //Rooms
-    @OneToMany(() => RoomEntity, (room) => room.Owner)
+    @OneToMany(() => RoomEntity, (room) => room.owner)
     roomOwner: Room[];
 
     @ManyToMany(() => RoomEntity)

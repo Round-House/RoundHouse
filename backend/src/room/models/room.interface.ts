@@ -18,8 +18,8 @@ export interface Room {
     childRooms: Room[];
 
     //Users
-    Owner: User;
-    Moderators: User[];
+    owner: User;
+    moderators: User[];
     users: User[];
 
     //Messages
