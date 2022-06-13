@@ -21,7 +21,7 @@ export interface User {
     //Rooms
     roomOwner: Room[];
     roomMod: Room[];
-    roomUser: Room[];
+    roomMember: Room[];
 
     //Misc
     link: string;

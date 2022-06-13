@@ -26,12 +26,13 @@ export class RoomService {
         const newRoom = new RoomEntity();
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
-        newRoom.roomAddress =
-            (roomDto.parentRoomAddress ? roomDto.parentRoomAddress + '.' : '') +
-            roomDto.name;
         newRoom.childRooms = [];
         newRoom.stream = new StreamEntity();
-        //TODO: implement STREAM in ROOM
+        newRoom.stream.messages = [];
+
+        if (roomDto.parentRoomAddress === undefined) {
+            roomDto.parentRoomAddress = '';
+        }
 
         return from(
             this.roomRepository.findOne({
@@ -39,27 +40,64 @@ export class RoomService {
             }),
         ).pipe(
             switchMap((parent: Room) => {
+                if (roomDto.parentRoomAddress && !parent) {
+                    throw Error('Cannot find parent room.');
+                }
                 newRoom.parentRoom = parent;
+                newRoom.roomAddress =
+                    (parent ? parent.roomAddress + '.' : '') + roomDto.name;
 
                 return from(
-                    this.userRepository.findOne({
+                    this.userRepository.findOneOrFail({
                         where: { username: user.username },
                     }),
                 ).pipe(
                     switchMap((owner: User) => {
                         newRoom.owner = owner;
-                        newRoom.moderators = [];
-                        newRoom.users = [owner];
+                        newRoom.members = [owner];
 
-                        return from(this.roomRepository.save(newRoom)).pipe(
-                            map((room: Room) => {
-                                return room;
+                        return from(
+                            this.roomRepository.findOne({
+                                where: { roomAddress: newRoom.roomAddress },
+                            }),
+                        ).pipe(
+                            switchMap((addressMatch: Room) => {
+                                if (addressMatch) {
+                                    throw Error(
+                                        `A room with the address ${newRoom.roomAddress} allready exists on the server.`,
+                                    );
+                                } else {
+                                    return from(
+                                        this.roomRepository.save(newRoom),
+                                    ).pipe(
+                                        map((room: Room) => {
+                                            if (
+                                                newRoom.parentRoom
+                                                    .childRooms === undefined
+                                            ) {
+                                                //TODO: remove parent from room before adding
+                                                newRoom.parentRoom.childRooms =
+                                                    [room];
+                                            } else {
+                                                newRoom.parentRoom?.childRooms.push(
+                                                    room,
+                                                );
+                                            }
+                                            return room;
+                                        }),
+                                        catchError((err) =>
+                                            throwError(() => err),
+                                        ),
+                                    );
+                                }
                             }),
                             catchError((err) => throwError(() => err)),
                         );
                     }),
+                    catchError((err) => throwError(() => err)),
                 );
             }),
+            catchError((err) => throwError(() => err)),
         );
     }
 }

@@ -6,12 +6,12 @@ import {
     Column,
     Entity,
     PrimaryGeneratedColumn,
-    BeforeInsert,
     CreateDateColumn,
     ManyToOne,
     OneToMany,
     ManyToMany,
     JoinTable,
+    Relation,
 } from 'typeorm';
 
 @Entity()
@@ -20,14 +20,14 @@ export class RoomEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @CreateDateColumn()
+    createdAt: Date;
+
     @Column()
     name: string;
 
     @Column({ nullable: true })
     description: string;
-
-    @CreateDateColumn()
-    createdAt: Date;
 
     //Images
     @Column({ nullable: true })
@@ -41,10 +41,14 @@ export class RoomEntity {
     roomAddress: string;
 
     @ManyToOne(() => RoomEntity, (room) => room.childRooms, { nullable: true })
-    parentRoom: Room;
+    parentRoom: Relation<Room>;
 
     @OneToMany(() => RoomEntity, (room) => room.parentRoom)
-    childRooms: Room[];
+    childRooms: Relation<Room>[];
+
+    //Messages
+    @Column({ type: 'json' })
+    stream: Stream;
 
     //Users
     @ManyToOne(() => UserEntity, (user) => user.roomOwner)
@@ -56,16 +60,5 @@ export class RoomEntity {
 
     @ManyToMany(() => UserEntity)
     @JoinTable()
-    users: User[];
-
-    //Messages
-    @Column({type: 'json'})
-    stream: Stream;
-
-    //Logic
-    @BeforeInsert()
-    checkParentExists() {}
-
-    @BeforeInsert()
-    checkRelativeName(){}
+    members: User[];
 }

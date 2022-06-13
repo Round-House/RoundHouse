@@ -57,7 +57,7 @@ export class UserEntity {
 
     @ManyToMany(() => RoomEntity)
     @JoinTable()
-    roomUser: Room[];
+    roomMember: Room[];
 
     //Misc
     @Column({nullable: true})

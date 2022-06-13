@@ -20,7 +20,7 @@ export interface Room {
     //Users
     owner: User;
     moderators: User[];
-    users: User[];
+    members: User[];
 
     //Messages
     stream: Stream;
