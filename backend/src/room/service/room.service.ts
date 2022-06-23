@@ -8,7 +8,6 @@ import { Room } from '../models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
-import { Console } from 'console';
 
 @Injectable()
 export class RoomService {
@@ -23,6 +22,7 @@ export class RoomService {
         return from(this.roomRepository.find());
     }
 
+    //TODO: Move to more logical place and add user and mod opitons
     getRoomsOfUser(username: string): Observable<Room[]> {
         return from(
             this.roomRepository
@@ -38,7 +38,7 @@ export class RoomService {
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
         newRoom.stream = new StreamEntity();
-        newRoom.stream.messages = [];
+        //newRoom.stream.messages = [];
 
         if (roomDto.parentRoomAddress === undefined) {
             roomDto.parentRoomAddress = '';
