@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StreamModule } from 'src/stream/stream.module';
 import { UserEntity } from 'src/user/models/user.entity';

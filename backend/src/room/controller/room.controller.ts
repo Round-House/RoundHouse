@@ -5,6 +5,7 @@ import {
     Post,
     UseGuards,
     Request,
+    Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { catchError, map, Observable, of } from 'rxjs';
@@ -21,13 +22,18 @@ export class RoomController {
         return this.roomService.findAll();
     }
 
+    @Get('/userSearch')
+    getRoomsOfUser(@Query('username') username: string): Observable<Room[]> {
+        return this.roomService.getRoomsOfUser(username);
+    }
+
     @Post('/create')
     @UseGuards(AuthGuard('jwt'))
     createRoom(
         @Body() room: CreateRoomDto,
         @Request() req: any,
     ): Observable<Room | Object> {
-        return this.roomService.createRoom(room, req.user).pipe(
+        return this.roomService.createRoom(room, req.user.user).pipe(
             map((newRoom: Room) => {return newRoom}),
             catchError((err) => of({ error: err.message })),
         )

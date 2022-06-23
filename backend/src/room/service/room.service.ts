@@ -8,6 +8,7 @@ import { Room } from '../models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
+import { Console } from 'console';
 
 @Injectable()
 export class RoomService {
@@ -22,11 +23,20 @@ export class RoomService {
         return from(this.roomRepository.find());
     }
 
+    getRoomsOfUser(username: string): Observable<Room[]> {
+        return from(
+            this.roomRepository
+                .createQueryBuilder('room')
+                .leftJoin('room.owner', 'owner')
+                .where('owner.username = :username', { username })
+                .getMany(),
+        );
+    }
+
     createRoom(roomDto: CreateRoomDto, user: any): Observable<Room> {
         const newRoom = new RoomEntity();
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
-        newRoom.childRooms = [];
         newRoom.stream = new StreamEntity();
         newRoom.stream.messages = [];
 
@@ -54,6 +64,7 @@ export class RoomService {
                 ).pipe(
                     switchMap((owner: User) => {
                         newRoom.owner = owner;
+                        newRoom.moderators = [owner];
                         newRoom.members = [owner];
 
                         return from(
@@ -71,18 +82,6 @@ export class RoomService {
                                         this.roomRepository.save(newRoom),
                                     ).pipe(
                                         map((room: Room) => {
-                                            if (
-                                                newRoom.parentRoom
-                                                    .childRooms === undefined
-                                            ) {
-                                                //TODO: remove parent from room before adding
-                                                newRoom.parentRoom.childRooms =
-                                                    [room];
-                                            } else {
-                                                newRoom.parentRoom?.childRooms.push(
-                                                    room,
-                                                );
-                                            }
                                             return room;
                                         }),
                                         catchError((err) =>
