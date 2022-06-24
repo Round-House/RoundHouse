@@ -22,7 +22,7 @@ export class RoomService {
         return from(this.roomRepository.find());
     }
 
-    //TODO: Move to more logical place and add user and mod opitons
+    //TODO: Move to more logical place and rewrite
     getRoomsOfUser(username: string): Observable<Room[]> {
         return from(
             this.roomRepository
@@ -38,7 +38,7 @@ export class RoomService {
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
         newRoom.stream = new StreamEntity();
-        //newRoom.stream.messages = [];
+        newRoom.stream.messages = [];
 
         if (roomDto.parentRoomAddress === undefined) {
             roomDto.parentRoomAddress = '';

@@ -9,6 +9,8 @@ import {
     ManyToOne,
     CreateDateColumn,
     UpdateDateColumn,
+    JoinColumn,
+    OneToOne,
 } from 'typeorm';
 
 @Entity()
@@ -25,7 +27,8 @@ export class MessageEntity {
     @ManyToOne(() => StreamEntity, (stream) => stream.messages)
     stream: Stream;
 
-    @Column({type: 'json'})
+    @OneToOne(() => StreamEntity, {cascade: true})
+    @JoinColumn()
     comments: Stream;
 
     @CreateDateColumn()

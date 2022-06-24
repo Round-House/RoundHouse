@@ -12,8 +12,11 @@ import {
     CreateDateColumn,
     ManyToMany,
     JoinTable,
+    OneToOne,
+    JoinColumn,
 } from 'typeorm';
 import "reflect-metadata"
+import { StreamEntity } from 'src/stream/models/stream.entity';
 
 @Entity()
 export class UserEntity {
@@ -44,7 +47,8 @@ export class UserEntity {
     @OneToMany(() => MessageEntity, (message) => message.account)
     messages: Message[];
 
-    @Column({type: 'json'})
+    @OneToOne(() => StreamEntity, {cascade: true})
+    @JoinColumn()
     stream: Stream;
 
     //Rooms

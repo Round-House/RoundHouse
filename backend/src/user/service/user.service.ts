@@ -31,13 +31,30 @@ export class UserService {
                 where: { username: username },
             }),
         ).pipe(
-            map((user: User) => {
+            switchMap((user: User) => {
+                console.log(user.id);
 
-                return from(this.messageRepository
-                .createQueryBuilder('message')
-                .leftJoin('message.stream', 'stream')
-                .where('steam.id = :streamId', {streamId: user.stream.id})
-                .getMany())
+                return from(
+                    this.userRepository
+                        .createQueryBuilder('user')
+                        .where('user.id = :id', { id: user.id })
+                        .leftJoinAndSelect('user.stream', 'stream')
+                        .getOne(),
+                ).pipe(
+                    map((userInfo: User) => {
+                        console.log(userInfo.stream.id);
+
+                        return from(
+                            this.messageRepository
+                                .createQueryBuilder('message')
+                                .leftJoinAndSelect('message.stream', 'stream')
+                                .where('steam.id = :id', {
+                                    id: userInfo.stream.id,
+                                })
+                                .getMany(),
+                        );
+                    }),
+                );
             }),
             catchError((err) => throwError(() => err)),
         );

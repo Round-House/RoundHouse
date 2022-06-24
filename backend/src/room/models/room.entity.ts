@@ -12,7 +12,10 @@ import {
     ManyToMany,
     JoinTable,
     Relation,
+    OneToOne,
+    JoinColumn,
 } from 'typeorm';
+import { StreamEntity } from 'src/stream/models/stream.entity';
 
 @Entity()
 export class RoomEntity {
@@ -47,7 +50,8 @@ export class RoomEntity {
     childRooms: Relation<Room>[];
 
     //Messages
-    @Column({ type: 'json' })
+    @OneToOne(() => StreamEntity, {cascade: true})
+    @JoinColumn()
     stream: Stream;
 
     //Users
