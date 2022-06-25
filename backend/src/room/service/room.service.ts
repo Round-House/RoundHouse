@@ -99,4 +99,92 @@ export class RoomService {
             catchError((err) => throwError(() => err)),
         );
     }
+
+    joinRoom(roomAddress: string, userJwtDto: any): Observable<Room> {
+        return from(
+            this.roomRepository.findOneOrFail({
+                where: { roomAddress },
+                relations: {
+                    members: true,
+                },
+            }),
+        ).pipe(
+            switchMap((room: Room) => {
+                return from(
+                    this.userRepository.findOneOrFail({
+                        where: { username: userJwtDto.username },
+                    }),
+                ).pipe(
+                    switchMap((user: User) => {
+                        if (
+                            room.members.includes(
+                                room.members.find(
+                                    (member) =>
+                                        member.username === user.username,
+                                ),
+                            )
+                        ) {
+                            throw Error(
+                                `User ${user.username} is already in room ${room.roomAddress}.`,
+                            );
+                        } else {
+                            room.members.push(user);
+                            return from(this.roomRepository.save(room)).pipe(
+                                map((room: Room) => {
+                                    return room;
+                                }),
+                                catchError((err) => throwError(() => err)),
+                            );
+                        }
+                    }),
+                    catchError((err) => throwError(() => err)),
+                );
+            }),
+            catchError((err) => throwError(() => err)),
+        );
+    }
+
+    leaveRoom(roomAddress: string, userJwtDto: any): Observable<Room> {
+        return from(
+            this.roomRepository.findOneOrFail({
+                where: { roomAddress },
+                relations: {
+                    members: true,
+                },
+            }),
+        ).pipe(
+            switchMap((room: Room) => {
+                return from(
+                    this.userRepository.findOneOrFail({
+                        where: { username: userJwtDto.username },
+                    }),
+                ).pipe(
+                    switchMap((user: User) => {
+                        if (
+                            !room.members.includes(
+                                room.members.find(
+                                    (member) =>
+                                        member.username === user.username,
+                                ),
+                            )
+                        ) {
+                            throw Error(
+                                `User ${user.username} is not in room ${room.roomAddress}.`,
+                            );
+                        } else {
+                            room.members.splice(room.members.indexOf(user), 1);
+                            return from(this.roomRepository.save(room)).pipe(
+                                map((room: Room) => {
+                                    return room;
+                                }),
+                                catchError((err) => throwError(() => err)),
+                            );
+                        }
+                    }),
+                    catchError((err) => throwError(() => err)),
+                );
+            }),
+            catchError((err) => throwError(() => err)),
+        );
+    }
 }

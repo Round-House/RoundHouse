@@ -50,7 +50,7 @@ export class RoomEntity {
     childRooms: Relation<Room>[];
 
     //Messages
-    @OneToOne(() => StreamEntity, {cascade: true})
+    @OneToOne(() => StreamEntity, { cascade: true })
     @JoinColumn()
     stream: Stream;
 
@@ -58,11 +58,11 @@ export class RoomEntity {
     @ManyToOne(() => UserEntity, (user) => user.roomOwner)
     owner: User;
 
-    @ManyToMany(() => UserEntity)
+    @ManyToMany(() => UserEntity, (user) => user.roomMod)
     @JoinTable()
     moderators: User[];
 
-    @ManyToMany(() => UserEntity)
+    @ManyToMany(() => UserEntity, (user) => user.roomMember)
     @JoinTable()
     members: User[];
 }

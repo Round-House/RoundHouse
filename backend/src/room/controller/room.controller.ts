@@ -38,4 +38,28 @@ export class RoomController {
             catchError((err) => of({ error: err.message })),
         )
     }
+
+    @Post('/join')
+    @UseGuards(AuthGuard('jwt'))
+    joinRoom(
+        @Query('roomAddress') roomAddress: string,
+        @Request() req: any,
+    ): Observable<Room | Object> {
+        return this.roomService.joinRoom(roomAddress, req.user.user).pipe(
+            map((newRoom: Room) => {return newRoom}),
+            catchError((err) => of({ error: err.message })),
+        )
+    }
+
+    @Post('/leave')
+    @UseGuards(AuthGuard('jwt'))
+    leaveRoom(
+        @Query('roomAddress') roomAddress: string,
+        @Request() req: any,
+    ): Observable<Room | Object> {
+        return this.roomService.leaveRoom(roomAddress, req.user.user).pipe(
+            map((newRoom: Room) => {return newRoom}),
+            catchError((err) => of({ error: err.message })),
+        )
+    }
 }

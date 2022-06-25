@@ -9,6 +9,7 @@ import { Message } from 'src/message/models/message.interface';
 import { MessageEntity } from 'src/message/models/message.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { Stream } from 'src/stream/models/stream.interface';
+import { UserJwtDto } from 'src/auth/models';
 
 @Injectable()
 export class UserService {
@@ -29,29 +30,43 @@ export class UserService {
         return from(
             this.userRepository.findOneOrFail({
                 where: { username: username },
+                relations: {
+                    stream: true,
+                },
             }),
         ).pipe(
             switchMap((user: User) => {
-                console.log(user.id);
-
                 return from(
-                    this.userRepository
-                        .createQueryBuilder('user')
-                        .where('user.id = :id', { id: user.id })
-                        .leftJoinAndSelect('user.stream', 'stream')
-                        .getOne(),
+                    this.streamRepository.findOneOrFail({
+                        where: { id: user.stream.id },
+                        relations: {
+                            messages: true,
+                        },
+                    }),
                 ).pipe(
-                    map((userInfo: User) => {
-                        console.log(userInfo.stream.id);
-
+                    switchMap((stream: Stream) => {
+                        console.log(stream);
                         return from(
-                            this.messageRepository
-                                .createQueryBuilder('message')
-                                .leftJoinAndSelect('message.stream', 'stream')
-                                .where('steam.id = :id', {
-                                    id: userInfo.stream.id,
-                                })
-                                .getMany(),
+                            this.userRepository
+                                .createQueryBuilder('user')
+                                .where('user.id = :id', { id: user.id })
+                                .leftJoinAndSelect('user.stream', 'stream')
+                                .getOne(),
+                        ).pipe(
+                            map((userInfo: User) => {
+                                return from(
+                                    this.messageRepository
+                                        .createQueryBuilder('message')
+                                        .leftJoinAndSelect(
+                                            'message.stream',
+                                            'stream',
+                                        )
+                                        .where('stream.id = :id', {
+                                            id: userInfo.stream.id,
+                                        })
+                                        .getMany(),
+                                );
+                            }),
                         );
                     }),
                 );
@@ -62,7 +77,7 @@ export class UserService {
 
     writeToStream(
         message: CreateMessageDto,
-        user: User,
+        user: UserJwtDto,
     ): Observable<Message | any> {
         const newMessage = new MessageEntity();
         newMessage.text = message.text;
@@ -72,14 +87,40 @@ export class UserService {
         return from(
             this.userRepository.findOneOrFail({
                 where: { username: user.username },
+                relations: {
+                    stream: true,
+                },
             }),
         ).pipe(
             switchMap((author: User) => {
                 newMessage.account = author;
 
-                return from(this.messageRepository.save(newMessage)).pipe(
-                    map((messageResponce: Message) => {
-                        return messageResponce;
+                return from(
+                    this.streamRepository.findOneOrFail({
+                        where: { id: author.stream.id },
+                        relations: {
+                            messages: true,
+                        },
+                    }),
+                ).pipe(
+                    switchMap((stream: Stream) => {
+                        return from(
+                            this.messageRepository.save(newMessage),
+                        ).pipe(
+                            switchMap((message: Message) => {
+                                console.log(stream);
+                                stream.messages.push(message);
+
+                                return from(
+                                    this.streamRepository.save(stream),
+                                ).pipe(
+                                    map((stream: Stream) => {
+                                        return stream;
+                                    }),
+                                    catchError((err) => throwError(() => err)),
+                                );
+                            }),
+                        );
                     }),
                     catchError((err) => throwError(() => err)),
                 );

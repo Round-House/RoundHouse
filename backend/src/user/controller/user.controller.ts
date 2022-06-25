@@ -34,7 +34,7 @@ export class UserController {
         );
     }
 
-    @Post('/stream/create')
+    @Post('/stream/write')
     @UseGuards(AuthGuard('jwt'))
     writeToStream(
         @Body() message: CreateMessageDto,

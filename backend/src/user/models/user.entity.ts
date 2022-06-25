@@ -11,7 +11,6 @@ import {
     OneToMany,
     CreateDateColumn,
     ManyToMany,
-    JoinTable,
     OneToOne,
     JoinColumn,
 } from 'typeorm';
@@ -55,12 +54,10 @@ export class UserEntity {
     @OneToMany(() => RoomEntity, (room) => room.owner)
     roomOwner: Room[];
 
-    @ManyToMany(() => RoomEntity)
-    @JoinTable()
+    @ManyToMany(() => RoomEntity, room => room.moderators)
     roomMod: Room[];
 
-    @ManyToMany(() => RoomEntity)
-    @JoinTable()
+    @ManyToMany(() => RoomEntity, room => room.members)
     roomMember: Room[];
 
     //Misc
