@@ -26,7 +26,7 @@ export class UserService {
         return from(this.userRepository.find());
     }
 
-    getStream(username: string): Observable<Stream | any> {
+    getStreamMessages(username: string): Observable<Stream | any> {
         return from(
             this.userRepository.findOneOrFail({
                 where: { username: username },
@@ -44,30 +44,8 @@ export class UserService {
                         },
                     }),
                 ).pipe(
-                    switchMap((stream: Stream) => {
-                        console.log(stream);
-                        return from(
-                            this.userRepository
-                                .createQueryBuilder('user')
-                                .where('user.id = :id', { id: user.id })
-                                .leftJoinAndSelect('user.stream', 'stream')
-                                .getOne(),
-                        ).pipe(
-                            map((userInfo: User) => {
-                                return from(
-                                    this.messageRepository
-                                        .createQueryBuilder('message')
-                                        .leftJoinAndSelect(
-                                            'message.stream',
-                                            'stream',
-                                        )
-                                        .where('stream.id = :id', {
-                                            id: userInfo.stream.id,
-                                        })
-                                        .getMany(),
-                                );
-                            }),
-                        );
+                    map((stream: Stream) => {
+                        return stream.messages;
                     }),
                 );
             }),

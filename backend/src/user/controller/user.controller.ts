@@ -24,9 +24,9 @@ export class UserController {
         return this.userService.findAll();
     }
 
-    @Get('/stream')
+    @Get('/stream/messages')
     getStream(@Query('username') username: string): Observable<Stream | any> {
-        return this.userService.getStream(username).pipe(
+        return this.userService.getStreamMessages(username).pipe(
             map((newStream: Stream) => {
                 return newStream;
             }),
