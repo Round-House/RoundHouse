@@ -16,6 +16,8 @@ import {
 } from 'typeorm';
 import "reflect-metadata"
 import { StreamEntity } from 'src/stream/models/stream.entity';
+import { UserAuth } from 'src/auth/models/userAuth.interface';
+import { UserAuthEntity } from 'src/auth/models/userAuth.entity';
 
 @Entity()
 export class UserEntity {
@@ -24,16 +26,14 @@ export class UserEntity {
     id: number;
 
     @Column({ unique: true })
-    email: string;
-
-    @Column({ unique: true })
     username: string;
 
     @Column({ nullable: true })
     nickname: string;
 
-    @Column()
-    password: string;
+    @OneToOne(() => UserAuthEntity, {cascade: true})
+    @JoinColumn()
+    auth: UserAuth;
 
     //Images
     @Column({ nullable: true })
@@ -69,10 +69,4 @@ export class UserEntity {
 
     @CreateDateColumn()
     joined: Date;
-
-    //Logic
-    @BeforeInsert()
-    emailToLowerCase() {
-        this.email = this.email.toLowerCase();
-    }
 }

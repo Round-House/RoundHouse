@@ -81,6 +81,7 @@ export class UserService {
     ): Observable<Message | any> {
         const newMessage = new MessageEntity();
         newMessage.text = message.text;
+        //TODO: Does this need to be saved?
         newMessage.comments = new StreamEntity();
         newMessage.comments.messages = [];
 
@@ -108,7 +109,6 @@ export class UserService {
                             this.messageRepository.save(newMessage),
                         ).pipe(
                             switchMap((message: Message) => {
-                                console.log(stream);
                                 stream.messages.push(message);
 
                                 return from(

@@ -9,6 +9,7 @@ import { CreateUserDto } from '../models/create-user.dto';
 import { LoginUserDto } from '../models/login-user.dto';
 import { User } from 'src/user/models/user.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
+import { UserAuthEntity } from '../models/userAuth.entity';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -24,10 +25,11 @@ export class AuthService {
         return this.hashPassword(user.password).pipe(
             switchMap((passwordHash: string) => {
                 const newUser = new UserEntity();
-                newUser.email = user.email;
+                newUser.auth = new UserAuthEntity();
+                newUser.auth.email = user.email;
                 newUser.username = user.username;
                 newUser.nickname = user.nickname;
-                newUser.password = passwordHash;
+                newUser.auth.passwordHash = passwordHash;
                 newUser.messages = [];
                 newUser.stream = new StreamEntity();
                 newUser.stream.messages = [];
@@ -39,7 +41,7 @@ export class AuthService {
                 return from(this.userRepository.save(newUser)).pipe(
                     map((user: User) => {
                         const responce = new UserJwtDto();
-                        responce.email = user.email;
+                        responce.email = user.auth.email;
                         responce.username = user.username;
 
                         return responce;
@@ -57,11 +59,11 @@ export class AuthService {
     loginLocal(credentials: LoginUserDto): Observable<string> {
         return this.getUser(credentials.username).pipe(
             switchMap((user: User) =>
-                this.comparePasswords(credentials.password, user.password).pipe(
+                this.comparePasswords(credentials.password, user.auth.passwordHash).pipe(
                     switchMap((match: boolean) => {
                         if (match) {
                             const userJwt = new UserJwtDto();
-                            userJwt.email = user.email;
+                            userJwt.email = user.auth.email;
                             userJwt.username = user.username;
                             return this.generateJWT(userJwt).pipe(
                                 map((jwt: string) => jwt),
@@ -100,15 +102,21 @@ export class AuthService {
 
         if (emailCheck.test(usernameOrEmail)) {
             usernameOrEmail = usernameOrEmail.toLocaleLowerCase();
+            
             return from(
-                this.userRepository.findOne({
-                    where: { email: usernameOrEmail },
-                }),
+                this.userRepository
+                    .createQueryBuilder('user')
+                    .leftJoinAndSelect('user.auth', 'auth')
+                    .where('auth.email = :email', { email: usernameOrEmail })
+                    .getOne(),
             );
         } else {
             return from(
                 this.userRepository.findOne({
                     where: { username: usernameOrEmail },
+                    relations: {
+                        auth: true,
+                    },
                 }),
             );
         }
