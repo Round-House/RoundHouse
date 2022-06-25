@@ -1,6 +1,6 @@
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
-import { StreamEntity } from '../../stream/models/stream.entity';
+import { StreamEntity } from '../../models/stream.entity';
 import { Stream } from 'src/stream/models/stream.interface';
 import {
     Column,

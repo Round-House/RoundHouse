@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { catchError, from, map, Observable, of } from 'rxjs';
-import { CreateMessageDto } from 'src/message/models';
-import { Message } from 'src/message/models/message.interface';
+import { CreateMessageDto } from 'src/stream/message/models';
+import { Message } from 'src/stream/message/models/message.interface';
 import { Stream } from 'src/stream/models/stream.interface';
 import { User } from '../models/user.interface';
 import { UserService } from '../service/user.service';

@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { StreamModule } from './stream/stream.module';
 import { RoomModule } from './room/room.module';
-import { MessageModule } from './message/message.module';
+import { MessageModule } from './stream/message/message.module';
 
 @Module({
     imports: [

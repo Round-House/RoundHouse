@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MessageEntity } from 'src/message/models/message.entity';
+import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { StreamModule } from 'src/stream/stream.module';

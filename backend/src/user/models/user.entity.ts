@@ -1,5 +1,5 @@
-import { MessageEntity } from 'src/message/models/message.entity';
-import { Message } from 'src/message/models/message.interface';
+import { MessageEntity } from 'src/stream/message/models/message.entity';
+import { Message } from 'src/stream/message/models/message.interface';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
 import { Stream } from 'src/stream/models/stream.interface';
@@ -65,7 +65,7 @@ export class UserEntity {
     link: string;
 
     @Column({ default: false })
-    isCat: boolean;
+    hasAccessory: boolean;
 
     @CreateDateColumn()
     joined: Date;
