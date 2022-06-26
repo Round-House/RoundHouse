@@ -1,5 +1,7 @@
+import { User } from "src/user/models/user.interface";
+
 export interface RemoteMember {
     id: number;
-    username: string;
-    serverAddress: string;
+    user: User;
+    roomAddress: string;
 }

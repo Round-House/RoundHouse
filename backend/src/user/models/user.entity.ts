@@ -18,6 +18,8 @@ import "reflect-metadata"
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserAuth } from 'src/auth/models/userAuth.interface';
 import { UserAuthEntity } from 'src/auth/models/userAuth.entity';
+import { LocalMemberEntity } from 'src/room/member/models/local-member.entity';
+import { RemoteMemberEntity } from 'src/room/member/models/remote-member.entity';
 
 @Entity()
 export class UserEntity {
@@ -51,6 +53,15 @@ export class UserEntity {
     stream: Stream;
 
     //Rooms
+
+    @OneToMany(() => LocalMemberEntity, (member) => member.user)
+    localMemberships: Room[];
+
+    @OneToMany(() => RemoteMemberEntity, (member) => member.user)
+    remoteMemberships: Room[];
+
+
+    //TODO: Delete these
     @OneToMany(() => RoomEntity, (room) => room.owner)
     roomOwner: Room[];
 
@@ -59,6 +70,7 @@ export class UserEntity {
 
     @ManyToMany(() => RoomEntity, room => room.members)
     roomMember: Room[];
+
 
     //Misc
     @Column({nullable: true})
