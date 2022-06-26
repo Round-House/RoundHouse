@@ -1,16 +1,12 @@
 import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { Message } from 'src/stream/message/models/message.interface';
-import { RoomEntity } from 'src/room/models/room.entity';
-import { Room } from 'src/room/models/room.interface';
 import { Stream } from 'src/stream/models/stream.interface';
 import {
     Column,
     Entity,
     PrimaryGeneratedColumn,
-    BeforeInsert,
     OneToMany,
     CreateDateColumn,
-    ManyToMany,
     OneToOne,
     JoinColumn,
 } from 'typeorm';
@@ -18,8 +14,11 @@ import "reflect-metadata"
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserAuth } from 'src/auth/models/userAuth.interface';
 import { UserAuthEntity } from 'src/auth/models/userAuth.entity';
-import { LocalMemberEntity } from 'src/room/member/models/local-member.entity';
-import { RemoteMemberEntity } from 'src/room/member/models/remote-member.entity';
+import { MemberEntity } from 'src/room/member/models/member.entity';
+import { Member } from 'src/room/member/models/member.interface';
+import { ExternalMembershipEntity } from 'src/room/member/models/external-membership.entity';
+import { ExternalMembership } from 'src/room/member/models/external-membership.interface';
+import { UserRole } from './user.interface';
 
 @Entity()
 export class UserEntity {
@@ -32,6 +31,9 @@ export class UserEntity {
 
     @Column({ nullable: true })
     nickname: string;
+
+    @Column({type: 'enum', enum: UserRole, default: UserRole.USER})
+    role: UserRole;
 
     @OneToOne(() => UserAuthEntity, {cascade: true})
     @JoinColumn()
@@ -52,25 +54,12 @@ export class UserEntity {
     @JoinColumn()
     stream: Stream;
 
-    //Rooms
+    //Room Memberships
+    @OneToMany(() => MemberEntity, (member) => member.user)
+    memberships: Member[];
 
-    @OneToMany(() => LocalMemberEntity, (member) => member.user)
-    localMemberships: Room[];
-
-    @OneToMany(() => RemoteMemberEntity, (member) => member.user)
-    remoteMemberships: Room[];
-
-
-    //TODO: Delete these
-    @OneToMany(() => RoomEntity, (room) => room.owner)
-    roomOwner: Room[];
-
-    @ManyToMany(() => RoomEntity, room => room.moderators)
-    roomMod: Room[];
-
-    @ManyToMany(() => RoomEntity, room => room.members)
-    roomMember: Room[];
-
+    @OneToMany(() => ExternalMembershipEntity, (member) => member.user)
+    externalMemberships: ExternalMembership[];
 
     //Misc
     @Column({nullable: true})

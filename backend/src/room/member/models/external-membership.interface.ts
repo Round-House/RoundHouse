@@ -1,9 +1,8 @@
 import { User } from "src/user/models/user.interface";
 
-export interface LocalMember {
+export interface ExternalMembership {
     id: number;
     user: User;
-    name: string;
-    role: string;
-    joined: Date;
+    server: string;
+    room: string;
 }

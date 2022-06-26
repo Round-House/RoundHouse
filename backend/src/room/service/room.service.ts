@@ -8,6 +8,8 @@ import { Room } from '../models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
+import { MemberEntity } from '../member/models/member.entity';
+import { MemberRole } from '../member/models/member.interface';
 
 @Injectable()
 export class RoomService {
@@ -38,7 +40,6 @@ export class RoomService {
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
         newRoom.stream = new StreamEntity();
-        newRoom.stream.messages = [];
 
         if (roomDto.parentRoomAddress === undefined) {
             roomDto.parentRoomAddress = '';
@@ -63,9 +64,10 @@ export class RoomService {
                     }),
                 ).pipe(
                     switchMap((owner: User) => {
-                        newRoom.owner = owner;
-                        newRoom.moderators = [owner];
-                        newRoom.members = [owner];
+                        const newMember = new MemberEntity();
+                        newMember.user = owner;
+                        newMember.room = newRoom;
+                        newMember.role = MemberRole.OWNER;
 
                         return from(
                             this.roomRepository.findOne({
@@ -105,7 +107,9 @@ export class RoomService {
             this.roomRepository.findOneOrFail({
                 where: { roomAddress },
                 relations: {
-                    members: true,
+                    memberships: {
+                        user: true,
+                    },
                 },
             }),
         ).pipe(
@@ -117,10 +121,11 @@ export class RoomService {
                 ).pipe(
                     switchMap((user: User) => {
                         if (
-                            room.members.includes(
-                                room.members.find(
-                                    (member) =>
-                                        member.username === user.username,
+                            room.memberships.includes(
+                                room.memberships.find(
+                                    (membership) =>
+                                        membership.user.username ===
+                                        user.username,
                                 ),
                             )
                         ) {
@@ -128,7 +133,11 @@ export class RoomService {
                                 `User ${user.username} is already in room ${room.roomAddress}.`,
                             );
                         } else {
-                            room.members.push(user);
+                            const newMembership = new MemberEntity();
+                            newMembership.user = user;
+                            newMembership.room = room;
+
+                            room.memberships.push(newMembership);
                             return from(this.roomRepository.save(room)).pipe(
                                 map((room: Room) => {
                                     return room;
@@ -149,7 +158,9 @@ export class RoomService {
             this.roomRepository.findOneOrFail({
                 where: { roomAddress },
                 relations: {
-                    members: true,
+                    memberships: {
+                        user: true,
+                    },
                 },
             }),
         ).pipe(
@@ -161,10 +172,11 @@ export class RoomService {
                 ).pipe(
                     switchMap((user: User) => {
                         if (
-                            !room.members.includes(
-                                room.members.find(
-                                    (member) =>
-                                        member.username === user.username,
+                            !room.memberships.includes(
+                                room.memberships.find(
+                                    (membership) =>
+                                        membership.user.username ===
+                                        user.username,
                                 ),
                             )
                         ) {
@@ -172,7 +184,17 @@ export class RoomService {
                                 `User ${user.username} is not in room ${room.roomAddress}.`,
                             );
                         } else {
-                            room.members.splice(room.members.indexOf(user), 1);
+                            // TODO: Check if this works
+                            room.memberships.splice(
+                                room.memberships.indexOf(
+                                    room.memberships.find(
+                                        (membership) =>
+                                            membership.user.username ===
+                                            user.username,
+                                    ),
+                                ),
+                                1,
+                            );
                             return from(this.roomRepository.save(room)).pipe(
                                 map((room: Room) => {
                                     return room;

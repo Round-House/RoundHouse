@@ -3,13 +3,17 @@ import { User } from "src/user/models/user.interface";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 Entity()
-export class RemoteMemberEntity {
+export class ExternalMembershipEntity {
     @PrimaryGeneratedColumn()
     id: number;
     
-    @ManyToOne(() => UserEntity, (user) => user.remoteMemberships)
+    @ManyToOne(() => UserEntity, (user) => user.memberships)
     user: User;
 
+    // Temporary assumed values until Activity Pub is implemented
     @Column()
-    roomAddress: string;
+    server: string;
+
+    @Column()
+    room: string;
 }

@@ -30,12 +30,7 @@ export class AuthService {
                 newUser.username = user.username;
                 newUser.nickname = user.nickname;
                 newUser.auth.passwordHash = passwordHash;
-                newUser.messages = [];
                 newUser.stream = new StreamEntity();
-                newUser.stream.messages = [];
-                newUser.roomOwner = [];
-                newUser.roomMod = [];
-                newUser.roomMember = [];
                 
 
                 return from(this.userRepository.save(newUser)).pipe(

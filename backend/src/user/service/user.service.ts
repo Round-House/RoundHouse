@@ -61,7 +61,6 @@ export class UserService {
         newMessage.text = message.text;
         //TODO: Does this need to be saved?
         newMessage.comments = new StreamEntity();
-        newMessage.comments.messages = [];
 
         return from(
             this.userRepository.findOneOrFail({

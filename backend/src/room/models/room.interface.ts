@@ -1,5 +1,5 @@
 import { Stream } from "src/stream/models/stream.interface";
-import { User } from "src/user/models/user.interface";
+import { Member } from "../member/models/member.interface";
 
 export interface Room {
     //Basic Info
@@ -17,10 +17,8 @@ export interface Room {
     parentRoom?: Room;
     childRooms: Room[];
 
-    //Users
-    owner: User;
-    moderators: User[];
-    members: User[];
+    //User Memberships
+    memberships: Member[];
 
     //Messages
     stream: Stream;

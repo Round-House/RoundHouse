@@ -16,6 +16,8 @@ import {
     JoinColumn,
 } from 'typeorm';
 import { StreamEntity } from 'src/stream/models/stream.entity';
+import { MemberEntity } from '../member/models/member.entity';
+import { Member } from '../member/models/member.interface';
 
 @Entity()
 export class RoomEntity {
@@ -54,15 +56,7 @@ export class RoomEntity {
     @JoinColumn()
     stream: Stream;
 
-    //Users
-    @ManyToOne(() => UserEntity, (user) => user.roomOwner)
-    owner: User;
-
-    @ManyToMany(() => UserEntity, (user) => user.roomMod)
-    @JoinTable()
-    moderators: User[];
-
-    @ManyToMany(() => UserEntity, (user) => user.roomMember)
-    @JoinTable()
-    members: User[];
+    //User Memberships
+    @OneToMany(() => MemberEntity, (member) => member.room)
+    memberships: Member[];
 }
