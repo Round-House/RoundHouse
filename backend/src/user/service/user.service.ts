@@ -23,7 +23,15 @@ export class UserService {
     ) {}
 
     findAll(): Observable<User[]> {
-        return from(this.userRepository.find());
+        return from(this.userRepository.find({
+            relations: {
+            memberships: {
+                room: true,
+            },
+            stream: {
+                messages: true,
+            }
+        },}));
     }
 
     getStreamMessages(username: string): Observable<Stream | any> {
@@ -31,25 +39,15 @@ export class UserService {
             this.userRepository.findOneOrFail({
                 where: { username: username },
                 relations: {
-                    stream: true,
+                    stream: {
+                        messages: true,
+                    },
                 },
             }),
         ).pipe(
-            switchMap((user: User) => {
-                return from(
-                    this.streamRepository.findOneOrFail({
-                        where: { id: user.stream.id },
-                        relations: {
-                            messages: true,
-                        },
-                    }),
-                ).pipe(
-                    map((stream: Stream) => {
-                        return stream.messages;
-                    }),
-                );
+            map((user: User) => {
+                return user.stream.messages;
             }),
-            catchError((err) => throwError(() => err)),
         );
     }
 
@@ -59,7 +57,6 @@ export class UserService {
     ): Observable<Message | any> {
         const newMessage = new MessageEntity();
         newMessage.text = message.text;
-        //TODO: Does this need to be saved?
         newMessage.comments = new StreamEntity();
 
         return from(
@@ -91,8 +88,8 @@ export class UserService {
                                 return from(
                                     this.streamRepository.save(stream),
                                 ).pipe(
-                                    map((stream: Stream) => {
-                                        return stream;
+                                    map(() => {
+                                        return message;
                                     }),
                                     catchError((err) => throwError(() => err)),
                                 );

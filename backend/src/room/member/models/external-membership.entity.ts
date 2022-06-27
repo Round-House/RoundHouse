@@ -2,7 +2,7 @@ import { UserEntity } from "src/user/models/user.entity";
 import { User } from "src/user/models/user.interface";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-Entity()
+@Entity()
 export class ExternalMembershipEntity {
     @PrimaryGeneratedColumn()
     id: number;

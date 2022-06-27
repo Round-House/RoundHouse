@@ -7,9 +7,10 @@ import { StreamModule } from 'src/stream/stream.module';
 import { UserController } from './controller/user.controller';
 import { UserEntity } from './models/user.entity';
 import { UserService } from './service/user.service';
+import { ExternalMembershipEntity } from 'src/room/member/models/external-membership.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([UserEntity, RoomEntity, MessageEntity, StreamEntity]),  StreamModule],
+    imports: [TypeOrmModule.forFeature([UserEntity, RoomEntity, MessageEntity, StreamEntity, ExternalMembershipEntity]),  StreamModule],
     controllers: [UserController],
     providers: [UserService],
 })

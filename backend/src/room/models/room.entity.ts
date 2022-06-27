@@ -1,5 +1,3 @@
-import { User } from 'src/user/models/user.interface';
-import { UserEntity } from 'src/user/models/user.entity';
 import { Room } from './room.interface';
 import { Stream } from 'src/stream/models/stream.interface';
 import {
@@ -9,8 +7,6 @@ import {
     CreateDateColumn,
     ManyToOne,
     OneToMany,
-    ManyToMany,
-    JoinTable,
     Relation,
     OneToOne,
     JoinColumn,
@@ -58,5 +54,5 @@ export class RoomEntity {
 
     //User Memberships
     @OneToMany(() => MemberEntity, (member) => member.room)
-    memberships: Member[];
+    memberships: Relation<Member>[];
 }

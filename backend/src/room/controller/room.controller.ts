@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { catchError, map, Observable, of } from 'rxjs';
+import { User } from 'src/user/models/user.interface';
+import { Member } from '../member/models/member.interface';
 import { CreateRoomDto } from '../models/create-room.dto';
 import { Room } from '../models/room.interface';
 import { RoomService } from '../service/room.service';
@@ -44,9 +46,9 @@ export class RoomController {
     joinRoom(
         @Query('roomAddress') roomAddress: string,
         @Request() req: any,
-    ): Observable<Room | Object> {
+    ): Observable<User | Object> {
         return this.roomService.joinRoom(roomAddress, req.user.user).pipe(
-            map((newRoom: Room) => {return newRoom}),
+            map((user: User) => {return user}),
             catchError((err) => of({ error: err.message })),
         )
     }
