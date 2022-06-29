@@ -4,13 +4,14 @@ import { StreamModule } from 'src/stream/stream.module';
 import { UserEntity } from 'src/user/models/user.entity';
 import { RoomController } from './controller/room.controller';
 import { RoomEntity } from './models/room.entity';
-import { RoomService } from './service/room.service';
 import { MemberModule } from './member/member.module';
 import { MemberEntity } from './member/models/member.entity';
+import { RoomCrudService } from './service/room-crud/room-crud.service';
+import { RoomMembershipService } from './service/room-membership/room-membership.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([RoomEntity, UserEntity, MemberEntity]), StreamModule, MemberModule],
     controllers: [RoomController],
-    providers: [RoomService],
+    providers: [RoomCrudService, RoomMembershipService],
 })
 export class RoomModule {}
