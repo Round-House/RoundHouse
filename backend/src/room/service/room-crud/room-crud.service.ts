@@ -26,6 +26,9 @@ export class RoomCrudService {
                     memberships: {
                         user: true,
                     },
+                    stream: {
+                        messages: true,
+                    }
                 },
             }),
         );

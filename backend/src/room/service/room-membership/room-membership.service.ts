@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
 import { MemberEntity } from 'src/room/member/models/member.entity';
+import { Member } from 'src/room/member/models/member.interface';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
@@ -18,13 +19,13 @@ export class RoomMembershipService {
         @InjectRepository(MemberEntity)
         private readonly memberRepository: Repository<MemberEntity>,){}
 
-    //TODO: Move to more logical place and rewrite
-    getRoomsOfUser(username: string): Observable<Room[]> {
+    getMebershipsOfUser(username: string): Observable<Member[]> {
         return from(
-            this.roomRepository
-                .createQueryBuilder('room')
-                .leftJoin('room.owner', 'owner')
-                .where('owner.username = :username', { username })
+            this.memberRepository
+                .createQueryBuilder('member')
+                .leftJoin('member.user', 'user')
+                .where('user.username = :username', { username })
+                .leftJoinAndSelect('member.room', 'room')
                 .getMany(),
         );
     }

@@ -8,10 +8,23 @@ import { MemberModule } from './member/member.module';
 import { MemberEntity } from './member/models/member.entity';
 import { RoomCrudService } from './service/room-crud/room-crud.service';
 import { RoomMembershipService } from './service/room-membership/room-membership.service';
+import { RoomStreamService } from './service/room-stream/room-stream.service';
+import { MessageEntity } from 'src/stream/message/models/message.entity';
+import { StreamEntity } from 'src/stream/models/stream.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([RoomEntity, UserEntity, MemberEntity]), StreamModule, MemberModule],
+    imports: [
+        TypeOrmModule.forFeature([
+            RoomEntity,
+            UserEntity,
+            MemberEntity,
+            MessageEntity,
+            StreamEntity,
+        ]),
+        StreamModule,
+        MemberModule,
+    ],
     controllers: [RoomController],
-    providers: [RoomCrudService, RoomMembershipService],
+    providers: [RoomCrudService, RoomMembershipService, RoomStreamService],
 })
 export class RoomModule {}
