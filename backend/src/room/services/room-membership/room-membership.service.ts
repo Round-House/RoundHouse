@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+    IPaginationMeta,
+    IPaginationOptions,
+    paginate,
+    Pagination,
+} from 'nestjs-typeorm-paginate';
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
 import { MemberEntity } from 'src/room/member/models/member.entity';
 import { Member, MemberRole } from 'src/room/member/models/member.interface';
@@ -17,7 +23,8 @@ export class RoomMembershipService {
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(MemberEntity)
-        private readonly memberRepository: Repository<MemberEntity>,){}
+        private readonly memberRepository: Repository<MemberEntity>,
+    ) {}
 
     getMebershipsOfUser(username: string): Observable<Member[]> {
         return from(
@@ -30,6 +37,30 @@ export class RoomMembershipService {
         );
     }
 
+    membersInRoom(
+        roomAddress: string,
+        options: IPaginationOptions,
+    ): Observable<Pagination<Member>> {
+        return from(
+            this.roomRepository.findOneOrFail({
+                where: { roomAddress },
+            }),
+        ).pipe(
+            switchMap((room: Room) => {
+                return from(
+                    paginate<Member>(this.memberRepository, options, {
+                        relations: ['user'],
+                        where: { room: { id: room.id } },
+                    }),
+                ).pipe(
+                    map((members: Pagination<Member, IPaginationMeta>) => {
+                        return members;
+                    }),
+                );
+            }),
+            catchError((err) => throwError(() => err)),
+        );
+    }
 
     joinRoom(roomAddress: string, userJwtDto: any): Observable<User> {
         return from(

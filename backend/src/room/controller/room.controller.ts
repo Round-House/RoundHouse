@@ -11,7 +11,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { catchError, map, Observable, of } from 'rxjs';
 import { CreateMessageDto } from 'src/stream/message/models';
 import { Message } from 'src/stream/message/models/message.interface';
-import { Stream } from 'src/stream/models/stream.interface';
 import { User } from 'src/user/models/user.interface';
 import { Member } from '../member/models/member.interface';
 import { CreateRoomDto } from '../models/create-room.dto';
@@ -22,27 +21,46 @@ import { RoomStreamService } from '../services/room-stream/room-stream.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { StreamDeliverableDto } from 'src/stream/models';
 
-export const ROOM_ENTRIES_URL ='http://localhost:3000/api/rooms';
+export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/rooms';
 @Controller('rooms')
 export class RoomController {
-    constructor(private roomCrudService: RoomCrudService,
+    constructor(
+        private roomCrudService: RoomCrudService,
         private roomMembershipService: RoomMembershipService,
-        private roomStreamService: RoomStreamService,) {}
+        private roomStreamService: RoomStreamService,
+    ) {}
 
     @Get()
     findAll(
         @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10
+        @Query('limit') limit: number = 10,
     ): Observable<Pagination<Room>> {
         limit = limit > 100 ? 100 : limit;
         return this.roomCrudService.findAll({
             limit: Number(limit),
             page: Number(page),
-            route: ROOM_ENTRIES_URL});
+            route: ROOM_ENTRIES_URL,
+        });
+    }
+
+    @Get('/members')
+    membersInRoom(
+        @Query('roomAddress') roomAdress: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ): Observable<Pagination<Member>> {
+        limit = limit > 100 ? 100 : limit;
+        return this.roomMembershipService.membersInRoom(roomAdress, {
+            limit: Number(limit),
+            page: Number(page),
+            route: ROOM_ENTRIES_URL + '/members?roomAddress=' + roomAdress,
+        });
     }
 
     @Get('/userSearch')
-    getMebershipsOfUser(@Query('username') username: string): Observable<Member[]> {
+    getMebershipsOfUser(
+        @Query('username') username: string,
+    ): Observable<Member[]> {
         return this.roomMembershipService.getMebershipsOfUser(username);
     }
 
@@ -53,9 +71,11 @@ export class RoomController {
         @Request() req: any,
     ): Observable<Room | Object> {
         return this.roomCrudService.createRoom(room, req.user.user).pipe(
-            map((newRoom: Room) => {return newRoom}),
+            map((newRoom: Room) => {
+                return newRoom;
+            }),
             catchError((err) => of({ error: err.message })),
-        )
+        );
     }
 
     @Post('/join')
@@ -64,10 +84,14 @@ export class RoomController {
         @Query('roomAddress') roomAddress: string,
         @Request() req: any,
     ): Observable<User | Object> {
-        return this.roomMembershipService.joinRoom(roomAddress, req.user.user).pipe(
-            map((user: User) => {return user}),
-            catchError((err) => of({ error: err.message })),
-        )
+        return this.roomMembershipService
+            .joinRoom(roomAddress, req.user.user)
+            .pipe(
+                map((user: User) => {
+                    return user;
+                }),
+                catchError((err) => of({ error: err.message })),
+            );
     }
 
     @Post('/leave')
@@ -76,10 +100,14 @@ export class RoomController {
         @Query('roomAddress') roomAddress: string,
         @Request() req: any,
     ): Observable<Room | Object> {
-        return this.roomMembershipService.leaveRoom(roomAddress, req.user.user).pipe(
-            map((newRoom: Room) => {return newRoom}),
-            catchError((err) => of({ error: err.message })),
-        )
+        return this.roomMembershipService
+            .leaveRoom(roomAddress, req.user.user)
+            .pipe(
+                map((newRoom: Room) => {
+                    return newRoom;
+                }),
+                catchError((err) => of({ error: err.message })),
+            );
     }
 
     @Post('/stream/createMessage')
@@ -89,10 +117,14 @@ export class RoomController {
         @Body() message: CreateMessageDto,
         @Request() req: any,
     ): Observable<Message | Object> {
-        return this.roomStreamService.createMessage(roomAddress, message, req.user.user).pipe(
-            map((newMessage: Message) => {return newMessage}),
-            catchError((err) => of({ error: err.message })),
-        )
+        return this.roomStreamService
+            .createMessage(roomAddress, message, req.user.user)
+            .pipe(
+                map((newMessage: Message) => {
+                    return newMessage;
+                }),
+                catchError((err) => of({ error: err.message })),
+            );
     }
 
     @Get('/stream/messages')
@@ -103,11 +135,20 @@ export class RoomController {
         @Query('limit') limit: number = 10,
         @Request() req: any,
     ): Observable<StreamDeliverableDto | Object> {
-        return this.roomStreamService.getStream(roomAddress, req.user.user, {limit: Number(limit),
-            page: Number(page),
-            route: ROOM_ENTRIES_URL + '/stream/messages?roomAddress=' + roomAddress}).pipe(
-            map((stream: StreamDeliverableDto) => {return stream}),
-            catchError((err) => of({ error: err.message })),
-        );
+        return this.roomStreamService
+            .getStream(roomAddress, req.user.user, {
+                limit: Number(limit),
+                page: Number(page),
+                route:
+                    ROOM_ENTRIES_URL +
+                    '/stream/messages?roomAddress=' +
+                    roomAddress,
+            })
+            .pipe(
+                map((stream: StreamDeliverableDto) => {
+                    return stream;
+                }),
+                catchError((err) => of({ error: err.message })),
+            );
     }
 }
