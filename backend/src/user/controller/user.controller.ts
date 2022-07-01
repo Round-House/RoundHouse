@@ -14,25 +14,40 @@ import { Message } from 'src/stream/message/models/message.interface';
 import { Stream } from 'src/stream/models/stream.interface';
 import { User } from '../models/user.interface';
 import { UserService } from '../service/user.service';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { StreamDeliverableDto } from 'src/stream/models';
 
+export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/users';
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}
 
     @Get()
-    findAll(): Observable<User[]> {
-        return this.userService.findAll();
+    findAll(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ): Observable<Pagination<User>> {
+        limit = limit > 100 ? 100 : limit;
+        return this.userService.findAll({
+            limit: Number(limit),
+            page: Number(page),
+            route: ROOM_ENTRIES_URL,
+        });
     }
 
     @Get('/stream/messages')
-    getStream(@Query('username') username: string): Observable<Stream | any> {
-        return this.userService.getStreamMessages(username).pipe(
-            map((newStream: Stream) => {
-                return newStream;
-            }),
-            catchError((err) => of({ error: err.message })),
-        );
-    }
+    getStream(
+        @Query('username') username: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+        ): Observable<StreamDeliverableDto | Object> {
+            return this.userService.getStreamMessages(username, {limit: Number(limit),
+                page: Number(page),
+                route: ROOM_ENTRIES_URL + '/stream/messages?username=' + username}).pipe(
+                map((stream: StreamDeliverableDto) => {return stream}),
+                catchError((err) => of({ error: err.message })),
+            );
+        }
 
     @Post('/stream/write')
     @UseGuards(AuthGuard('jwt'))

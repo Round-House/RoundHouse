@@ -10,6 +10,13 @@ import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { Stream } from 'src/stream/models/stream.interface';
 import { UserJwtDto } from 'src/auth/models';
+import {
+    Pagination,
+    IPaginationOptions,
+    paginate,
+    IPaginationMeta,
+} from 'nestjs-typeorm-paginate';
+import { StreamDeliverableDto } from 'src/stream/models';
 
 @Injectable()
 export class UserService {
@@ -22,31 +29,35 @@ export class UserService {
         private readonly streamRepository: Repository<StreamEntity>,
     ) {}
 
-    findAll(): Observable<User[]> {
-        return from(this.userRepository.find({
-            relations: {
-            memberships: {
-                room: true,
-            },
-            stream: {
-                messages: true,
-            }
-        },}));
+    findAll(options: IPaginationOptions): Observable<Pagination<User>> {
+        return from(
+            paginate<User>(this.userRepository, options, {
+                relations: ['memberships', 'memberships.room', 'stream', 'stream.messages'],
+            }),
+        ).pipe(map((users: Pagination<User>) => users));
     }
 
-    getStreamMessages(username: string): Observable<Stream | any> {
+    getStreamMessages(username: string, options: IPaginationOptions): Observable<Stream | any> {
         return from(
             this.userRepository.findOneOrFail({
                 where: { username: username },
                 relations: {
-                    stream: {
-                        messages: true,
-                    },
+                    stream: true,
                 },
             }),
         ).pipe(
-            map((user: User) => {
-                return user.stream.messages;
+            switchMap((user: User) => {
+                const deliverable = new StreamDeliverableDto();
+                deliverable.stream = user.stream;
+                
+                return from(paginate<Message>(this.messageRepository, options, {
+                    relations: ['account', 'comments'],
+                    where: { stream: user.stream },
+                }),).pipe(
+                    map((messages: Pagination<Message, IPaginationMeta>) => {
+                        deliverable.messages = messages;
+                        return deliverable;
+                    }),);
             }),
         );
     }

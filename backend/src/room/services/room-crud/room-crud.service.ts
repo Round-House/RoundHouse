@@ -9,7 +9,13 @@ import { Room } from 'src/room/models/room.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
+import {
+    Pagination,
+    IPaginationOptions,
+    paginate,
+} from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
+import { RoomMembershipService } from '../room-membership/room-membership.service';
 
 @Injectable()
 export class RoomCrudService {
@@ -17,21 +23,16 @@ export class RoomCrudService {
         @InjectRepository(RoomEntity)
         private readonly roomRepository: Repository<RoomEntity>,
         @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,){}
+        private readonly userRepository: Repository<UserEntity>,
+        private roomMembershipService: RoomMembershipService,
+    ) {}
 
-    findAll(): Observable<Room[]> {
+    findAll(options: IPaginationOptions): Observable<Pagination<Room>> {
         return from(
-            this.roomRepository.find({
-                relations: {
-                    memberships: {
-                        user: true,
-                    },
-                    stream: {
-                        messages: true,
-                    }
-                },
+            paginate<Room>(this.roomRepository, options, {
+                relations: ['parentRoom', 'memberships', 'stream'],
             }),
-        );
+        ).pipe(map((rooms: Pagination<Room>) => rooms));
     }
 
     createRoom(roomDto: CreateRoomDto, user: any): Observable<Room> {
@@ -64,11 +65,6 @@ export class RoomCrudService {
                     }),
                 ).pipe(
                     switchMap((owner: User) => {
-                        const newMember = new MemberEntity();
-                        newMember.user = owner;
-                        newMember.room = newRoom;
-                        newMember.role = MemberRole.OWNER;
-
                         return from(
                             this.roomRepository.findOne({
                                 where: { roomAddress: newRoom.roomAddress },
@@ -83,8 +79,17 @@ export class RoomCrudService {
                                     return from(
                                         this.roomRepository.save(newRoom),
                                     ).pipe(
-                                        map((room: Room) => {
-                                            return room;
+                                        switchMap((room: Room) => {
+                                            return from(
+                                                this.roomMembershipService.joinRoom(
+                                                    room.roomAddress,
+                                                    user,
+                                                ),
+                                            ).pipe(
+                                                map(() => {
+                                                    return room;
+                                                }),
+                                            );
                                         }),
                                         catchError((err) =>
                                             throwError(() => err),
@@ -101,5 +106,4 @@ export class RoomCrudService {
             catchError((err) => throwError(() => err)),
         );
     }
-    
 }

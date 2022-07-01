@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
 import { MemberEntity } from 'src/room/member/models/member.entity';
-import { Member } from 'src/room/member/models/member.interface';
+import { Member, MemberRole } from 'src/room/member/models/member.interface';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
@@ -62,6 +62,10 @@ export class RoomMembershipService {
                             const newMembership = new MemberEntity();
                             newMembership.user = user;
                             newMembership.room = room;
+
+                            if (room.memberships.length === 0) {
+                                newMembership.role = MemberRole.OWNER;
+                            }
 
                             this.memberRepository.save(newMembership);
 
@@ -124,5 +128,4 @@ export class RoomMembershipService {
             catchError((err) => throwError(() => err)),
         );
     }
-
 }

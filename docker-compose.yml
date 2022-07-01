@@ -21,7 +21,7 @@ services:
     # Reflect File changes from host to container
     volumes:
       - ./backend:/usr/src/app
-      - /usr/src/app/node_modules/
+      # - /usr/src/app/node_modules/
 
     # Use "npm run start:debug" for dev with debug, 
     # or "npm run start" for production 
@@ -36,7 +36,7 @@ services:
     command: npm run start
     volumes:
       - ./frontend:/usr/frontend/src/app
-      - /usr/frontend/src/app/node_modules
+      # - /usr/frontend/src/app/node_modules
     ports:
       - 4200:4200
     links:

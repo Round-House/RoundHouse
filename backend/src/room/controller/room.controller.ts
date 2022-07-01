@@ -16,10 +16,13 @@ import { User } from 'src/user/models/user.interface';
 import { Member } from '../member/models/member.interface';
 import { CreateRoomDto } from '../models/create-room.dto';
 import { Room } from '../models/room.interface';
-import { RoomCrudService } from '../service/room-crud/room-crud.service';
-import { RoomMembershipService } from '../service/room-membership/room-membership.service';
-import { RoomStreamService } from '../service/room-stream/room-stream.service';
+import { RoomCrudService } from '../services/room-crud/room-crud.service';
+import { RoomMembershipService } from '../services/room-membership/room-membership.service';
+import { RoomStreamService } from '../services/room-stream/room-stream.service';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { StreamDeliverableDto } from 'src/stream/models';
 
+export const ROOM_ENTRIES_URL ='http://localhost:3000/api/rooms';
 @Controller('rooms')
 export class RoomController {
     constructor(private roomCrudService: RoomCrudService,
@@ -27,8 +30,15 @@ export class RoomController {
         private roomStreamService: RoomStreamService,) {}
 
     @Get()
-    findAll(): Observable<Room[]> {
-        return this.roomCrudService.findAll();
+    findAll(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10
+    ): Observable<Pagination<Room>> {
+        limit = limit > 100 ? 100 : limit;
+        return this.roomCrudService.findAll({
+            limit: Number(limit),
+            page: Number(page),
+            route: ROOM_ENTRIES_URL});
     }
 
     @Get('/userSearch')
@@ -89,10 +99,14 @@ export class RoomController {
     @UseGuards(AuthGuard('jwt'))
     getStream(
         @Query('roomAddress') roomAddress: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
         @Request() req: any,
-    ): Observable<Stream | Object> {
-        return this.roomStreamService.getStream(roomAddress, req.user.user).pipe(
-            map((stream: Stream) => {return stream}),
+    ): Observable<StreamDeliverableDto | Object> {
+        return this.roomStreamService.getStream(roomAddress, req.user.user, {limit: Number(limit),
+            page: Number(page),
+            route: ROOM_ENTRIES_URL + '/stream/messages?roomAddress=' + roomAddress}).pipe(
+            map((stream: StreamDeliverableDto) => {return stream}),
             catchError((err) => of({ error: err.message })),
         );
     }
