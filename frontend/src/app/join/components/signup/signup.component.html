@@ -1,1 +1,44 @@
-<p>signup works!</p>
+<mat-card>
+    <mat-card-title>Sign Up</mat-card-title>
+    <div class="example-container">
+
+        <form>
+            
+            <mat-form-field appearance="fill">
+                <mat-label>Enter a username</mat-label>
+                <input matInput placeholder="MrRound" [formControl]="username" [formControl]="username" required>
+                <mat-error *ngIf="username.invalid">{{getErrorMessage()}}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Enter your email</mat-label>
+                <input matInput placeholder="round@house.com" [formControl]="email" [formControl]="email" required>
+                <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Enter a password</mat-label>
+                <input formControlName="password" matInput [type]="hide ? 'password' : 'text'" [formControl]="password"
+                    required>
+                <mat-error *ngIf="password.invalid">{{getErrorMessage()}}</mat-error>
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                    [attr.aria-pressed]="hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Re-enter your password</mat-label>
+                <input formControlName="passwordConfirm" matInput [type]="hide ? 'password' : 'text'"
+                    [formControl]="passwordConfirm" required>
+                <mat-error *ngIf="passwordConfirm.invalid">{{getErrorMessage()}}</mat-error>
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                    [attr.aria-pressed]="hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" type="submit">Sign Up</button>
+        </form>
+    </div>
+</mat-card>

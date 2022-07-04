@@ -5,7 +5,6 @@ import { JoinComponent } from './components/join/join.component';
 const routes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
     component: JoinComponent
   }
 ];
