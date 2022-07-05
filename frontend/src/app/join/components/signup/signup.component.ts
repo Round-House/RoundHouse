@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-signup',
@@ -19,22 +19,37 @@ export class SignupComponent {
   passwordConfirm = new FormControl('', [Validators.required]);
 
 
-  getErrorMessage() {
+  getEmailErrorMessage() {
     if (this.email.hasError('email')) {
       return 'Not a valid email';
     }
     if (this.email.hasError('required')) {
       return 'You must enter a email';
     }
+
+    return 'Unknown error';
+  }
+
+  getUsernameErrorMessage() {
     if (this.username.hasError('required')) {
-      return 'You must enter an email';
+      return 'You must enter a username';
     }
+
+    return 'Unknown error';
+  }
+
+  getPasswordErrorMessage() {
     if (this.password.hasError('minlength')) {
       return 'Minimum length is 8';
     }
     if (this.password.hasError('required')) {
       return 'You must enter a password';
     }
+
+    return 'Unknown error';
+  }
+
+  getPasswordConfirmErrorMessage() {
     if (this.passwordConfirm.hasError('required')) {
       return 'Please re-enter your password';
     }

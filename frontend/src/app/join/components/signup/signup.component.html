@@ -6,21 +6,21 @@
             
             <mat-form-field appearance="fill">
                 <mat-label>Enter a username</mat-label>
-                <input matInput placeholder="MrRound" [formControl]="username" [formControl]="username" required>
-                <mat-error *ngIf="username.invalid">{{getErrorMessage()}}</mat-error>
+                <input matInput placeholder="MrRound" [formControl]="username" required>
+                <mat-error *ngIf="username.invalid">{{getUsernameErrorMessage()}}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="fill">
                 <mat-label>Enter your email</mat-label>
-                <input matInput placeholder="round@house.com" [formControl]="email" [formControl]="email" required>
-                <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+                <input matInput placeholder="round@house.com" [formControl]="email" required>
+                <mat-error *ngIf="email.invalid">{{getEmailErrorMessage()}}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="fill">
                 <mat-label>Enter a password</mat-label>
-                <input formControlName="password" matInput [type]="hide ? 'password' : 'text'" [formControl]="password"
+                <input matInput [type]="hide ? 'password' : 'text'" [formControl]="password"
                     required>
-                <mat-error *ngIf="password.invalid">{{getErrorMessage()}}</mat-error>
+                <mat-error *ngIf="password.invalid">{{getPasswordErrorMessage()}}</mat-error>
                 <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                     [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -29,9 +29,9 @@
 
             <mat-form-field appearance="fill">
                 <mat-label>Re-enter your password</mat-label>
-                <input formControlName="passwordConfirm" matInput [type]="hide ? 'password' : 'text'"
+                <input matInput [type]="hide ? 'password' : 'text'"
                     [formControl]="passwordConfirm" required>
-                <mat-error *ngIf="passwordConfirm.invalid">{{getErrorMessage()}}</mat-error>
+                <mat-error *ngIf="passwordConfirm.invalid">{{getPasswordConfirmErrorMessage()}}</mat-error>
                 <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                     [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
