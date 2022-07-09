@@ -3,7 +3,7 @@
     <div class="example-container">
 
         <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
-            
+
             <mat-form-field appearance="fill">
                 <mat-label>Enter a username</mat-label>
                 <input matInput placeholder="MrRound" formControlName="username" required>
@@ -19,10 +19,10 @@
 
             <mat-form-field appearance="fill">
                 <mat-label>Enter a password</mat-label>
-                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password"
-                    required>
-                    <mat-error *ngIf="signUpForm.get('password')?.hasError('required')">Password is required</mat-error>
-                    <mat-error *ngIf="signUpForm.get('password')?.hasError('minlength')">Password must be 8 or more characters</mat-error>
+                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password" required>
+                <mat-error *ngIf="signUpForm.get('password')?.hasError('required')">Password is required</mat-error>
+                <mat-error *ngIf="signUpForm.get('password')?.hasError('minlength')">Password must be 8 or more
+                    characters</mat-error>
                 <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                     [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -31,14 +31,16 @@
 
             <mat-form-field appearance="fill">
                 <mat-label>Re-enter your password</mat-label>
-                <input matInput [type]="hide ? 'password' : 'text'"
-                formControlName="passwordConfirm" [errorStateMatcher]="passMatcher" required>
+                <input matInput [type]="hide ? 'password' : 'text'" formControlName="passwordConfirm"
+                    [errorStateMatcher]="passMatcher" required>
                 <mat-error *ngIf="signUpForm.hasError('passwordsNotMatching')">Passwords do not match</mat-error>
                 <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                     [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
             </mat-form-field>
+            <mat-checkbox formControlName="acceptTosAndRules">I agree to the <a href="https://www.duckduckgo.com">Server
+                    Rules</a> and <a href="https://www.google.com">Terms of Service</a>. *</mat-checkbox>
 
             <button mat-flat-button color="primary" [disabled]="!signUpForm.valid" type="submit">Sign Up</button>
         </form>

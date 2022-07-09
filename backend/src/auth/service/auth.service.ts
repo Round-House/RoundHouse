@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import { UserJwtDto } from '../models';
 import { CreateUserDto } from '../models/create-user.dto';
 import { LoginUserDto } from '../models/login-user.dto';
-import { User } from 'src/user/models/user.interface';
+import { User, UserRole } from 'src/user/models/user.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserAuthEntity } from '../models/userAuth.entity';
 const bcrypt = require('bcrypt');
@@ -31,19 +31,27 @@ export class AuthService {
                 newUser.nickname = user.nickname;
                 newUser.auth.passwordHash = passwordHash;
                 newUser.stream = new StreamEntity();
-                
 
-                return from(this.userRepository.save(newUser)).pipe(
-                    map((user: User) => {
-                        const responce = new UserJwtDto();
-                        responce.email = user.auth.email;
-                        responce.username = user.username;
+                return from(this.userRepository.count({})).pipe(
+                    switchMap((count: number) => {
+                        if (count === 0) {
+                            newUser.role = UserRole.ADMIN;
+                        }
+                        return from(this.userRepository.save(newUser)).pipe(
+                            map((user: User) => {
+                                const responce = new UserJwtDto();
+                                responce.email = user.auth.email;
+                                responce.username = user.username;
 
-                        return responce;
+                                return responce;
+                            }),
+                            catchError((err) => throwError(() => err)),
+                        );
                     }),
                     catchError((err) => throwError(() => err)),
                 );
             }),
+            catchError((err) => throwError(() => err)),
         );
     }
 
@@ -54,7 +62,10 @@ export class AuthService {
     loginLocal(credentials: LoginUserDto): Observable<string> {
         return this.getUser(credentials.username).pipe(
             switchMap((user: User) =>
-                this.comparePasswords(credentials.password, user.auth.passwordHash).pipe(
+                this.comparePasswords(
+                    credentials.password,
+                    user.auth.passwordHash,
+                ).pipe(
                     switchMap((match: boolean) => {
                         if (match) {
                             const userJwt = new UserJwtDto();
@@ -69,6 +80,7 @@ export class AuthService {
                             );
                         }
                     }),
+                    catchError((err) => throwError(() => err)),
                 ),
             ),
             catchError((err) => throwError(() => err)),
@@ -97,7 +109,7 @@ export class AuthService {
 
         if (emailCheck.test(usernameOrEmail)) {
             usernameOrEmail = usernameOrEmail.toLocaleLowerCase();
-            
+
             return from(
                 this.userRepository
                     .createQueryBuilder('user')

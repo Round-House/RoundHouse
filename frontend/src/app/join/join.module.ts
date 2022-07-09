@@ -13,7 +13,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input'; 
-import {MatButtonModule} from '@angular/material/button'; 
+import {MatButtonModule} from '@angular/material/button';
+import { StatsComponent } from './components/stats/stats.component';
+import { BottomCardComponent } from './components/bottom-card/bottom-card.component'; 
+import {MatChipsModule} from '@angular/material/chips';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+
 
 @NgModule({
   declarations: [
@@ -22,6 +28,8 @@ import {MatButtonModule} from '@angular/material/button';
     AboutComponent,
     JoinRoomComponent,
     JoinComponent,
+    StatsComponent,
+    BottomCardComponent,
   ],
   imports: [
     CommonModule,
@@ -33,6 +41,9 @@ import {MatButtonModule} from '@angular/material/button';
     MatIconModule,
     MatInputModule,
     MatButtonModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatCheckboxModule,
   ],
 })
 export class JoinModule {}
