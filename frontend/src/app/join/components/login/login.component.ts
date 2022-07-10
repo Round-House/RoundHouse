@@ -1,10 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { map } from 'rxjs';
 import { JoinService } from '../../service/join.service';
@@ -15,16 +10,21 @@ import { JoinService } from '../../service/join.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  
   loginForm!: FormGroup;
 
   hide = true;
+
+  joiningRoom: string | undefined = undefined;
 
   constructor(
     private formBuilder: FormBuilder,
     private joinService: JoinService,
     private router: Router
-  ) {}
+  ) {
+    this.joinService.isJoiningRoom$.subscribe((joiningRoom) => {
+      this.joiningRoom = joiningRoom;
+    });
+  }
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -34,7 +34,6 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log(this.loginForm.value);
     if (this.loginForm.invalid) {
       return;
     }
@@ -43,7 +42,14 @@ export class LoginComponent implements OnInit {
       .login(this.loginForm.value)
       .pipe(
         map(() => {
-          this.router.navigate(['']);
+          this.joinService
+            .joinRoom(this.joiningRoom)
+            .pipe(
+              map(() => {
+                this.router.navigate(['']);
+              })
+            )
+            .subscribe();
         })
       )
       .subscribe();

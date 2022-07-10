@@ -22,6 +22,11 @@ export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/users';
 export class UserController {
     constructor(private userService: UserService) {}
 
+    @Get('/admin')
+    getAdmin(): Observable<User> {
+        return this.userService.getAdmin();
+    }
+
     @Get()
     findAll(
         @Query('page') page: number = 1,

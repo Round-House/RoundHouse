@@ -52,13 +52,19 @@ export class SignupComponent implements OnInit {
 
   hide = true;
 
+  joiningRoom: string | undefined = undefined;
+
   passMatcher = new ConfirmPassErrorStateMatcher();
 
   constructor(
     private formBuilder: FormBuilder,
     private joinService: JoinService,
     private router: Router
-  ) {}
+  ) {
+    this.joinService.isJoiningRoom$.subscribe((joiningRoom) => {
+      this.joiningRoom = joiningRoom;
+    });
+  }
 
   checkPasswords: ValidatorFn = (
     control: AbstractControl
@@ -93,7 +99,6 @@ export class SignupComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log(this.signUpForm.value);
     if (this.signUpForm.invalid) {
       return;
     }
@@ -104,7 +109,18 @@ export class SignupComponent implements OnInit {
         map(() => {
           this.joinService
             .login(this.signUpForm.value)
-            .pipe(map(() => this.router.navigate([''])))
+            .pipe(
+              map(() => {
+                this.joinService
+                  .joinRoom(this.joiningRoom)
+                  .pipe(
+                    map(() => {
+                      this.router.navigate(['']);
+                    })
+                  )
+                  .subscribe();
+              })
+            )
             .subscribe();
         })
       )

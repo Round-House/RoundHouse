@@ -4,9 +4,8 @@ img {
     padding-bottom: 20px;
 }
 
-app-signup, .middle, app-about {
-    margin-top: 10px;
-    margin-bottom: 10px;
+app-signup, .middle, app-about, app-room-card {
+    margin: 8px;
 }
 
 .container {
@@ -20,16 +19,12 @@ app-signup, .middle, app-about {
     background-color: #41345f;
 }
 
-.middle {
-    margin-top: auto;
-    margin-left: 10px;
-    margin-right: 10px;
-    position: relative;
-    bottom: 0px;
+.left-side {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .forms {
@@ -38,4 +33,14 @@ app-signup, .middle, app-about {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+}
+
+.middle {
+    margin-top: auto;
+    position: relative;
+    bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }

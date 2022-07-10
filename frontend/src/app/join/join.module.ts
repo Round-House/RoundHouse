@@ -18,6 +18,7 @@ import { BottomCardComponent } from './components/bottom-card/bottom-card.compon
 import {MatChipsModule} from '@angular/material/chips';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import { RoomCardComponent } from './components/room-card/room-card.component';
 
 
 @NgModule({
@@ -28,6 +29,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     JoinRoomComponent,
     JoinComponent,
     BottomCardComponent,
+    RoomCardComponent,
   ],
   imports: [
     CommonModule,
@@ -42,6 +44,9 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatChipsModule,
     MatDividerModule,
     MatCheckboxModule,
+  ],
+  providers: [
+    RoomCardComponent,
   ],
 })
 export class JoinModule {}

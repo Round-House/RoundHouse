@@ -27,6 +27,20 @@ export class RoomCrudService {
         private roomMembershipService: RoomMembershipService,
     ) {}
 
+    getRoom(roomAddress: string): Observable<Room> {
+        return from(
+            this.roomRepository.findOne({
+                where: {
+                    roomAddress,
+                },
+            }),
+        ).pipe(
+            map((room) => {
+                return room as Room;
+            }),
+        );
+    }
+
     findAll(options: IPaginationOptions): Observable<Pagination<Room>> {
         return from(
             paginate<Room>(this.roomRepository, options, {
@@ -40,7 +54,6 @@ export class RoomCrudService {
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
         newRoom.stream = new StreamEntity();
-        console.log(user);
 
         if (roomDto.parentRoomAddress === undefined) {
             roomDto.parentRoomAddress = '';
