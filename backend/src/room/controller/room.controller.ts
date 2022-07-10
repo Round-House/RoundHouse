@@ -30,6 +30,13 @@ export class RoomController {
         private roomStreamService: RoomStreamService,
     ) {}
 
+    @Get('/get')
+    getRoom(
+        @Query('roomAddress') roomAddress: string,
+    ): Observable<Room | Object> {
+        return this.roomCrudService.getRoom(roomAddress);
+    }
+
     @Get()
     findAll(
         @Query('page') page: number = 1,

@@ -27,11 +27,12 @@ export interface User {
     link: string;
     hasAccessory: boolean;
     joined: Date; 
+    color: string;
 }
 
-
 export enum UserRole {
-    ADMIN = 'admin',  
+    ADMIN = 'admin',
+    CO_ADMIN = 'co-admin',
     SERVER_MODERATOR = 'server moderator',
     USER = 'user',
     EXTERNAL = 'external'

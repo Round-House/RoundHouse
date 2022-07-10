@@ -9,7 +9,6 @@ import { UserJwtDto } from '../models';
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-    //User Authentication
     @Post('local/register')
     regiesterLocal(
         @Body() user: CreateUserDto,
@@ -20,7 +19,7 @@ export class AuthController {
         );
     }
 
-    @Get('local/login')
+    @Post('local/login')
     loginLocal(@Body() user: LoginUserDto): Observable<Object> {
         return this.authService.loginLocal(user).pipe(
             map((jwt: string) => {
@@ -29,27 +28,4 @@ export class AuthController {
             catchError((err) => of({ error: err.message })),
         );
     }
-
-    @Post('local/logout')
-    logoutLocal() {
-        this.authService.logoutLocal();
-    }
-
-    @Post('local/refresh')
-    refreshLocal() {
-        this.authService.refreshLocal();
-    }
-
-    //TODO: ActivityPub Authentication
-    @Post('remote/register')
-    regiesterRemote() {}
-
-    @Post('remote/login')
-    loginRemote() {}
-
-    @Post('remote/logout')
-    logoutRemote() {}
-
-    @Post('remote/refresh')
-    refreshRemote() {}
 }
