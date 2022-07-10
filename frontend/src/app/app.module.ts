@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
+
 import { LeftBarComponent } from './components/left-bar/left-bar.component';
 import { RightBarComponent } from './components/right-bar/right-bar.component';
 
@@ -21,6 +23,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     MatIconModule,
     MatToolbarModule,
     MatSidenavModule,
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
