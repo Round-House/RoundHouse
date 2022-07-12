@@ -2,10 +2,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { GroupsRoutingModule } from './groups-routing.module';
+import { GroupsComponent } from './components/groups/groups.component';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    GroupsComponent
+  ],
   imports: [
     CommonModule,
     GroupsRoutingModule
