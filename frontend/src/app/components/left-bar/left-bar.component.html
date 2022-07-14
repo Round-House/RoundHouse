@@ -12,8 +12,10 @@
             <a mat-list-item routerLink="/following">
                 <mat-icon>public</mat-icon>
             </a>
-            <a mat-list-item routerLink="/room">
-                <mat-icon>autorenew</mat-icon>
+            <a *ngFor="let room of userRooms" mat-list-item routerLink="/room">
+                <div *ngIf="!room.image" class="color" [ngStyle]="room.color">
+                </div>
+                <img *ngIf="room.image" class="logo" src="https://material.angular.io/assets/img/examples/shiba1.jpg">
             </a>
         </mat-nav-list>
     </mat-sidenav-content>

@@ -20,6 +20,7 @@ import { RoomMembershipService } from '../services/room-membership/room-membersh
 import { RoomStreamService } from '../services/room-stream/room-stream.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { StreamDeliverableDto } from 'src/stream/models';
+import { TreeRoomDto } from '../models';
 
 export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/rooms';
 @Controller('rooms')
@@ -64,11 +65,12 @@ export class RoomController {
         });
     }
 
-    @Get('/userSearch')
-    getMebershipsOfUser(
-        @Query('username') username: string,
-    ): Observable<Member[]> {
-        return this.roomMembershipService.getMebershipsOfUser(username);
+    @Get('/rootRooms')
+    @UseGuards(AuthGuard('jwt'))
+    getRootRooms(
+        @Request() req: any,
+    ): Observable<TreeRoomDto[]> {
+        return this.roomMembershipService.getRootRooms(req.user.user.username);
     }
 
     @Post('/create')

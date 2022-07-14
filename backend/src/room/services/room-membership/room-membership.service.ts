@@ -9,6 +9,7 @@ import {
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
 import { MemberEntity } from 'src/room/member/models/member.entity';
 import { Member, MemberRole } from 'src/room/member/models/member.interface';
+import { TreeRoomDto } from 'src/room/models';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
@@ -26,14 +27,22 @@ export class RoomMembershipService {
         private readonly memberRepository: Repository<MemberEntity>,
     ) {}
 
-    getMebershipsOfUser(username: string): Observable<Member[]> {
+    getRootRooms(username: string): Observable<TreeRoomDto[]> {
         return from(
-            this.memberRepository
-                .createQueryBuilder('member')
-                .leftJoin('member.user', 'user')
+            this.roomRepository
+                .createQueryBuilder('room')
+                .leftJoin('room.memberships', 'membership')
+                .leftJoin('membership.user', 'user')
                 .where('user.username = :username', { username })
-                .leftJoinAndSelect('member.room', 'room')
+                .andWhere('room.parentRoom is null')
                 .getMany(),
+        ).pipe(
+            map((rooms: Room[]) => {
+                const treeRoomList = rooms.map(room => new TreeRoomDto(room))
+                return treeRoomList;
+            }
+            ),
+            catchError((err) => throwError(() => err)),
         );
     }
 

@@ -30,12 +30,15 @@ export class RoomEntity {
     @Column({ nullable: true })
     description: string;
 
-    //Images
+    //Cosmentics
     @Column({ nullable: true })
     image: string;
 
     @Column({ nullable: true })
     banner: string;
+
+    @Column({ default: '#41345f'})
+    color: string;
 
     //Room Tree
     @Column()
