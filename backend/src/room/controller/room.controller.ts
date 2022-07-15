@@ -67,10 +67,34 @@ export class RoomController {
 
     @Get('/rootRooms')
     @UseGuards(AuthGuard('jwt'))
-    getRootRooms(
-        @Request() req: any,
-    ): Observable<TreeRoomDto[]> {
+    getRootRooms(@Request() req: any): Observable<TreeRoomDto[]> {
         return this.roomMembershipService.getRootRooms(req.user.user.username);
+    }
+
+    @Get('/subRooms')
+    getSubRooms(@Query('roomAddress') address: string): Observable<Room> {
+        return this.roomMembershipService.getSubRooms(address).pipe(
+            map((rooms: any) => {
+                return rooms;
+            }),
+            catchError((err) => of({ error: err.message })),
+        );
+    }
+
+    @Get('/usersSubRooms')
+    @UseGuards(AuthGuard('jwt'))
+    getUsersSubRooms(
+        @Request() req: any,
+        @Query('roomAddress') address: string,
+    ): Observable<TreeRoomDto[]> {
+        return this.roomMembershipService
+            .getUsersSubRooms(req.user.user.username, address)
+            .pipe(
+                map((rooms: any) => {
+                    return rooms;
+                }),
+                catchError((err) => of({ error: err.message })),
+            );
     }
 
     @Post('/create')
