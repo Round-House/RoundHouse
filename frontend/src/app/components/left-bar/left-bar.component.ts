@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-import { SidebarsService } from 'src/app/services/sidebars.service';
+import { SidebarsService } from 'src/app/services/sidebars/sidebars.service';
 import { map } from 'rxjs';
 import { TreeRoomDto } from 'src/app/models';
 

@@ -3,6 +3,12 @@ mat-sidenav-content,
 mat-sidenav {
     height: 100%;
     width: 55px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+mat-sidenav-content::-webkit-scrollbar {
+    display: none;
 }
 
 a:hover,
@@ -16,4 +22,8 @@ a:active {
     min-width: 20px;
     min-height: 20px;
     clip-path: circle();
+}
+
+.mat-list-item, mat-nav-list {
+    height: 50px!important;
 }

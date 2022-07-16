@@ -1,5 +1,12 @@
-.container, main {
+.container,
+main {
+    position: absolute;
     height: 100%;
     width: 100%;
     display: flex;
+    background-color: #505050;
+}
+
+p {
+    color: #fff
 }

@@ -2,12 +2,21 @@
     <mat-sidenav role="directory">
     </mat-sidenav>
     <mat-sidenav-content>
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>
+                    <p>
+                        {{roomName}}
+                    </p>
+                </mat-card-title>
+            </mat-card-header>
+        </mat-card>
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="room-tree">
             <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 {{node.name}}
             </mat-tree-node>
             <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-                <div class="mat-tree-node">
+                <div class="tree-node">
                     <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
                         <mat-icon class="mat-icon-rtl-mirror">
                             {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}

@@ -3,7 +3,13 @@ mat-sidenav-content,
 mat-sidenav {
     height: 100%;
     width: 250px;
-    background-color: #404040;
+    background-color: #424242;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+mat-sidenav-content::-webkit-scrollbar {
+    display: none;
 }
 
 .room-tree-invisible {
@@ -16,19 +22,9 @@ mat-sidenav {
     margin-bottom: 0;
     list-style-type: none;
 }
-
-/*
-   * This padding sets alignment of the nested nodes.
-   */
 .room-tree .mat-nested-tree-node div[role=group] {
-    padding-left: 10px;
+    padding-left: 15px;
 }
-
-/*
-   * Padding for leaf nodes.
-   * Leaf nodes need to have padding so as to align with other non-leaf nodes
-   * under the same parent.
-   */
-.room-tree div[role=group]>.mat-tree-node {
+.room-tree div[role=group]>.tree-node, mat-tree-node {
     padding-left: 40px;
 }
