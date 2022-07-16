@@ -20,21 +20,32 @@ export class LeftRoomBarComponent implements OnInit {
 
   roomName: string | undefined;
 
-  constructor(private route: ActivatedRoute, private roomService: RoomService) {}
+  param: any;
+
+  constructor(
+    private route: ActivatedRoute,
+    private roomService: RoomService
+  ) {}
 
   ngOnInit(): void {
-    this.roomService.getRoomTree(
-      this.route.snapshot.queryParams['address']
-    ).pipe(
-      map((rooms: RoomDto) => {
-        this.roomName = rooms.name;
-        if(rooms.childRooms){
-          this.roomTree = rooms.childRooms;
-          this.dataSource.data = this.roomTree;
-        }
+    this.roomService
+      .getRoomTree(this.route.snapshot.queryParams['hub'])
+      .pipe(
+        map((rooms: RoomDto) => {
+          this.roomName = rooms.name;
+          if (rooms.childRooms) {
+            this.roomTree = rooms.childRooms;
+            this.dataSource.data = this.roomTree;
+          }
+        })
+      )
+      .subscribe();
+    this.route.queryParams.subscribe((params) => {
+      if (this.param != params['hub']) {
+        this.param = params['hub'];
+        this.ngOnInit();
       }
-    )
-    ).subscribe();
+    });
   }
 
   hasChild = (_: number, node: RoomDto) =>
