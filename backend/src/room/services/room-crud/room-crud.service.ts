@@ -50,6 +50,7 @@ export class RoomCrudService {
     }
 
     createRoom(roomDto: CreateRoomDto, user: any): Observable<Room> {
+
         const newRoom = new RoomEntity();
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
@@ -65,6 +66,12 @@ export class RoomCrudService {
             }),
         ).pipe(
             switchMap((parent: Room) => {
+                if(newRoom.name.includes('.')) {
+                    throw Error('Room name cannot contain a dot');
+                }
+                if(newRoom.name.includes('@')) {
+                    throw Error('Room name cannot contain an @');
+                }
                 if (roomDto.parentRoomAddress && !parent) {
                     throw Error('Cannot find parent room.');
                 }
@@ -117,6 +124,6 @@ export class RoomCrudService {
                 );
             }),
             catchError((err) => throwError(() => err)),
-        );
+        )
     }
 }
