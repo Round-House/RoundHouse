@@ -17,6 +17,10 @@ export class JoinService {
     this.isJoiningRoom$ = this.isJoiningRoomSubject.asObservable();
   }
 
+  checkUsernameTaken(username: string) {
+    return this.http.get<any>('/api/users/checkUsernameTaken?username=' + username);
+  }
+
   isJoiningRoom(joining: string | undefined) {
     this.isJoiningRoomSubject.next(joining);
   }

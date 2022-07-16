@@ -13,34 +13,7 @@ import {
 import { ErrorStateMatcher } from '@angular/material/core';
 import { JoinService } from '../../service/join.service';
 import { Router } from '@angular/router';
-import { map } from 'rxjs';
-
-export class ConfirmPassErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(
-    control: FormControl | null,
-    form: FormGroupDirective | NgForm | null
-  ): boolean {
-    const invalidCtrl = !!(
-      control?.invalid &&
-      control?.parent?.dirty &&
-      control.touched
-    );
-    const invalidParent = !!(
-      control?.parent?.invalid &&
-      control?.parent?.dirty &&
-      control.touched
-    );
-
-    const invalidusername = !!control?.parent?.get('username')?.invalid;
-    const invalidEmail = !!control?.parent?.get('email')?.invalid;
-    const invalidPass = !!control?.parent?.get('password')?.invalid;
-
-    const invalidFinal =
-      invalidParent && !(invalidusername || invalidEmail || invalidPass);
-
-    return invalidCtrl || invalidFinal;
-  }
-}
+import { map, Observable, of, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -48,13 +21,15 @@ export class ConfirmPassErrorStateMatcher implements ErrorStateMatcher {
   styleUrls: ['./signup.component.scss'],
 })
 export class SignupComponent implements OnInit {
+  nameControl: FormControl | undefined;
+
+  passConfirmControl: FormControl | undefined;
+
   signUpForm!: FormGroup;
 
   hide = true;
 
   joiningRoom: string | undefined = undefined;
-
-  passMatcher = new ConfirmPassErrorStateMatcher();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -66,36 +41,61 @@ export class SignupComponent implements OnInit {
     });
   }
 
-  checkPasswords: ValidatorFn = (
-    control: AbstractControl
-  ): ValidationErrors | null => {
-    const password = control.get('password')?.value;
-    const confirmPassword = control.get('passwordConfirm')?.value;
-
-    if (
-      password === confirmPassword &&
-      password !== null &&
-      confirmPassword !== null
-    ) {
-      return null;
-    } else {
-      return { passwordsNotMatching: true };
-    }
-  };
-
   ngOnInit(): void {
-    this.signUpForm = this.formBuilder.group(
-      {
-        username: [null, [Validators.required]],
-        email: [null, [Validators.required, Validators.email]],
-        password: [null, [Validators.required, Validators.minLength(8)]],
-        passwordConfirm: [null, [Validators.required]],
-        acceptTosAndRules: [null, [Validators.requiredTrue]],
-      },
-      {
-        validators: this.checkPasswords,
-      }
+    this.nameControl = this.formBuilder.control(
+      '',
+      [this.userNameValidator.bind(this)],
+      this.checkUsernameTaken.bind(this)
+      );
+    this.passConfirmControl = this.formBuilder.control('', [
+      this.passConfirmValidator.bind(this),
+    ]);
+    this.signUpForm = this.formBuilder.group({
+      username: this.nameControl,
+      email: [null, [Validators.required, Validators.email]],
+      password: [null, [Validators.required, Validators.minLength(8)]],
+      passwordConfirm: this.passConfirmControl,
+      acceptTosAndRules: [null, [Validators.requiredTrue]],
+    });
+  }
+
+  userNameValidator({
+    value,
+  }: AbstractControl): ValidationErrors | null{
+    if (value.length < 3) {
+      return { usernameTooShort: true };
+    }
+    if (value.length > 30) {
+      return { usernameTooLong: true };
+    }
+    if (value.includes('@')) {
+      return { containsAtSign: true };
+    }
+    if (value.startsWith('rh.')) {
+      return { startsWithRH: true };
+    }
+    return null;
+  }
+
+  checkUsernameTaken(control: AbstractControl): Observable<ValidationErrors | null> {
+    return this.joinService.checkUsernameTaken(control.value).pipe(
+      map((nameExists: boolean) => {
+        if (nameExists) {
+          return { usernameTaken: true };
+        }
+        return null;
+      }),
+      debounceTime(500)
     );
+  }
+
+  passConfirmValidator({ value }: AbstractControl): ValidationErrors | null {
+    if (this.signUpForm) {
+      if (this.signUpForm.get('password')!!.value !== value) {
+        return { passwordsNotMatching: true };
+      }
+    }
+    return null;
   }
 
   onSubmit() {
