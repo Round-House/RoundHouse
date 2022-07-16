@@ -22,9 +22,25 @@ mat-sidenav-content::-webkit-scrollbar {
     margin-bottom: 0;
     list-style-type: none;
 }
+
 .room-tree .mat-nested-tree-node div[role=group] {
     padding-left: 15px;
 }
-.room-tree div[role=group]>.tree-node, mat-tree-node {
+
+.room-tree div[role=group]>.tree-node,
+mat-tree-node {
     padding-left: 40px;
+}
+
+mat-icon-button {
+    background: none;
+    border: none;
+}
+
+p {
+    font-weight:normal; 
+}
+
+.selectedRoom {
+    font-weight: unset;
 }
