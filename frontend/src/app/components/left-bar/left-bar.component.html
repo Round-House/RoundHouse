@@ -1,6 +1,5 @@
-<mat-sidenav-container>
-    <mat-sidenav #sidenav role="navigation">
-        <!--this is a place for us to add side-nav code-->
+<mat-sidenav-container *ngIf="!joinPage">
+    <mat-sidenav role="navigation">
     </mat-sidenav>
     <mat-sidenav-content>
         <mat-nav-list>
@@ -10,12 +9,17 @@
             <a mat-list-item routerLink="/groups">
                 <mat-icon>people</mat-icon>
             </a>
-            <a mat-list-item routerLink="/room">
-                <mat-icon>autorenew</mat-icon>
+            <a mat-list-item routerLink="/following">
+                <mat-icon>public</mat-icon>
+            </a>
+            <a *ngFor="let room of userRooms" mat-list-item [routerLink]="['/room']" [queryParams]="{hub: room.roomAddress, address: room.roomAddress}">
+                <div *ngIf="!room.image" class="color" [ngStyle]="room.color">
+                </div>
+                <img *ngIf="room.image" class="logo" src="https://material.angular.io/assets/img/examples/shiba1.jpg">
+            </a>
+            <a mat-list-item routerLink="/join">
+                <mat-icon>playlist_add</mat-icon>
             </a>
         </mat-nav-list>
-        <main>
-            <router-outlet></router-outlet>
-        </main>
     </mat-sidenav-content>
 </mat-sidenav-container>

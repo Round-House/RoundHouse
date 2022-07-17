@@ -9,8 +9,8 @@ app-signup, .middle, app-about, app-room-card {
 }
 
 .container {
-    min-height: 100%;
-    min-width: 100%;
+    min-height: 100vh;
+    min-width: 100vw;
     display: flex;
     flex-direction: row;
     justify-content: center;

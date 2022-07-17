@@ -27,6 +27,11 @@ export class UserController {
         return this.userService.getAdmin();
     }
 
+    @Get('/checkUsernameTaken')
+    checkUsernameTaken(@Query('username') username: string): Observable<boolean> {
+        return this.userService.checkUsernameTaken(username);
+    }
+
     @Get()
     findAll(
         @Query('page') page: number = 1,

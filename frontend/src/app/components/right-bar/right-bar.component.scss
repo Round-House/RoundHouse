@@ -1,0 +1,19 @@
+mat-sidenav-container, mat-sidenav-content, mat-sidenav {
+    height: 100%;
+    width: 55px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+mat-sidenav-content::-webkit-scrollbar {
+    display: none;
+}
+
+a:hover, a:active{
+    color: purple;
+}
+.bottom {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}

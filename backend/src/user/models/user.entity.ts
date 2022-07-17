@@ -71,6 +71,6 @@ export class UserEntity {
     @CreateDateColumn()
     joined: Date;
 
-    @Column({ default: '41345f', nullable: true })
+    @Column({ default: '#41345f'})
     color: string;
 }

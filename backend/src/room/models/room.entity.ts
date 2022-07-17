@@ -5,17 +5,20 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     CreateDateColumn,
-    ManyToOne,
     OneToMany,
     Relation,
     OneToOne,
     JoinColumn,
+    Tree,
+    TreeParent,
+    TreeChildren,
 } from 'typeorm';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { MemberEntity } from '../member/models/member.entity';
 import { Member } from '../member/models/member.interface';
 
 @Entity()
+@Tree("materialized-path")
 export class RoomEntity {
     //Basic Info
     @PrimaryGeneratedColumn()
@@ -30,21 +33,24 @@ export class RoomEntity {
     @Column({ nullable: true })
     description: string;
 
-    //Images
+    //Cosmentics
     @Column({ nullable: true })
     image: string;
 
     @Column({ nullable: true })
     banner: string;
 
+    @Column({ default: '#41345f'})
+    color: string;
+
     //Room Tree
     @Column()
     roomAddress: string;
 
-    @ManyToOne(() => RoomEntity, (room) => room.childRooms, { nullable: true })
+    @TreeParent()
     parentRoom: Relation<Room>;
 
-    @OneToMany(() => RoomEntity, (room) => room.parentRoom)
+    @TreeChildren()
     childRooms: Relation<Room>[];
 
     //Messages

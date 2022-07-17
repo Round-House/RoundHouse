@@ -1,7 +1,29 @@
-mat-sidenav-container, mat-sidenav-content, mat-sidenav {
+mat-sidenav-container,
+mat-sidenav-content,
+mat-sidenav {
     height: 100%;
     width: 55px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
-a:hover, a:active{
+
+mat-sidenav-content::-webkit-scrollbar {
+    display: none;
+}
+
+a:hover,
+a:active {
     color: purple;
+}
+
+.logo, .color {
+    height: 100%;
+    width: 100%;
+    min-width: 20px;
+    min-height: 20px;
+    clip-path: circle();
+}
+
+.mat-list-item, mat-nav-list {
+    height: 50px!important;
 }

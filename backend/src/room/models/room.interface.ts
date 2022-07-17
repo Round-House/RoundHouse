@@ -8,9 +8,10 @@ export interface Room {
     description?: string;
     createdAt: Date;
 
-    //Images
+    //Cosmetics
     image?: string;
     banner?: string;
+    color: string;
 
     //Room Tree
     roomAddress: string;

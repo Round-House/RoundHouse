@@ -9,11 +9,12 @@ import {
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
 import { MemberEntity } from 'src/room/member/models/member.entity';
 import { Member, MemberRole } from 'src/room/member/models/member.interface';
+import { TreeRoomDto } from 'src/room/models';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class RoomMembershipService {
@@ -24,16 +25,95 @@ export class RoomMembershipService {
         private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(MemberEntity)
         private readonly memberRepository: Repository<MemberEntity>,
+        private dataSource: DataSource,
     ) {}
 
-    getMebershipsOfUser(username: string): Observable<Member[]> {
+    getRootRooms(username: string): Observable<TreeRoomDto[]> {
         return from(
-            this.memberRepository
-                .createQueryBuilder('member')
-                .leftJoin('member.user', 'user')
+            this.roomRepository
+                .createQueryBuilder('room')
+                .leftJoin('room.memberships', 'membership')
+                .leftJoin('membership.user', 'user')
                 .where('user.username = :username', { username })
-                .leftJoinAndSelect('member.room', 'room')
+                .andWhere('room.parentRoom is null')
                 .getMany(),
+        ).pipe(
+            map((rooms: Room[]) => {
+                const treeRoomList = rooms.map((room) => new TreeRoomDto(room));
+                return treeRoomList;
+            }),
+            catchError((err) => throwError(() => err)),
+        );
+    }
+
+    getSubRooms(roomAddress: string): Observable<Room> {
+        return from(
+            this.roomRepository.findOneOrFail({
+                where: {
+                    roomAddress,
+                },
+            }),
+        ).pipe(
+            switchMap((room: RoomEntity) => {
+                return from(
+                    this.dataSource
+                        .getTreeRepository(RoomEntity)
+                        .findDescendantsTree(room),
+                ).pipe(
+                    map((rooms: Room) => {
+                        return rooms;
+                    }),
+                    catchError((err) => throwError(() => err)),
+                );
+            }),
+            catchError((err) => throwError(() => err)),
+        );
+    }
+
+    getUsersSubRooms(username: string, roomAddress: string): Observable<TreeRoomDto[]> {
+        return from(
+            this.roomRepository.findOneOrFail({
+                where: {
+                    roomAddress,
+                },
+            }),
+        ).pipe(
+            switchMap((room: RoomEntity) => {
+                return from(
+                    this.dataSource
+                        .getTreeRepository(RoomEntity)
+                        .findDescendants(room),
+                ).pipe(
+                    switchMap((roomInTree: Room[]) => {
+                        return from(
+                            this.roomRepository
+                                .createQueryBuilder('room')
+                                .leftJoin('room.memberships', 'membership')
+                                .leftJoin('membership.user', 'user')
+                                .where('user.username = :username', {
+                                    username,
+                                })
+                                .getMany(),
+                        ).pipe(
+                            map((userRooms: Room[]) => {
+                                const userRoomAddresses = userRooms.map(
+                                    (room) => room.roomAddress,
+                                );
+                                const tempRoomList = roomInTree.filter((room) =>
+                                    userRoomAddresses.includes(
+                                        room.roomAddress,
+                                    ),
+                                );
+                                const treeRoomList = tempRoomList.map((room) => new TreeRoomDto(room));
+                                return treeRoomList;
+                            }),
+                            catchError((err) => throwError(() => err)),
+                        );
+                    }),
+                    catchError((err) => throwError(() => err)),
+                );
+            }),
+            catchError((err) => throwError(() => err)),
         );
     }
 

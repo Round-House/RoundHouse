@@ -1,20 +1,26 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LeftBarComponent } from './components/left-bar/left-bar.component';
-import { RightBarComponent } from './components/right-bar/right-bar.component';
 
 const routes: Routes = [
   {
+    path: 'account',
+    loadChildren: () => import('./account/account.module').then(m => m.AccountModule)
+  },
+  {
+    path: 'groups',
+    loadChildren: () => import('./groups/groups.module').then(m => m.GroupsModule)
+  },
+  {
+    path: 'following',
+    loadChildren: () => import('./following/following.module').then(m => m.FollowingModule)
+  },
+  {
+    path: 'room',
+    loadChildren: () => import('./room/room.module').then(m => m.RoomModule)
+  },
+  {
     path: 'join',
     loadChildren: () => import('./join/join.module').then(m => m.JoinModule)
-  },
-  {
-    path: 'left',
-    component: LeftBarComponent
-  },
-  {
-    path: 'right',
-    component: RightBarComponent
   },];
 
 @NgModule({

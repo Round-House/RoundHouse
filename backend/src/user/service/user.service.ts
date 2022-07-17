@@ -55,6 +55,19 @@ export class UserService {
         );
     }
 
+    checkUsernameTaken(username: string): Observable<boolean> {
+        return from(
+            this.userRepository.findOne({
+                where: { username },
+            }),
+        ).pipe(
+            map((user: User) => {
+                return user ? true : false;
+            }),
+            catchError((err) => throwError(() => err)),
+        );
+    }
+
     getStreamMessages(
         username: string,
         options: IPaginationOptions,

@@ -24,6 +24,20 @@ export class AuthService {
     regiesterLocal(user: CreateUserDto): Observable<UserJwtDto> {
         return this.hashPassword(user.password).pipe(
             switchMap((passwordHash: string) => {
+
+                if(user.username.length < 3) {
+                    throw Error('Username must be at least 3 characters long');
+                }
+                if(user.username.length > 30) {
+                    throw Error('Username must be at most 30 caracters long');
+                }
+                if(user.username.includes('@')) {
+                    throw Error('Username cannot contain an @ symbol');
+                }
+                if(user.username.startsWith('rh.')) {
+                    throw Error('Username cannot start with \'rh.\'');
+                }
+
                 const newUser = new UserEntity();
                 newUser.auth = new UserAuthEntity();
                 newUser.auth.email = user.email;
