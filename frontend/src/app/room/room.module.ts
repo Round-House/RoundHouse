@@ -12,9 +12,14 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { InputFieldComponent } from './components/input-field/input-field.component';
+import { MessageComponent } from './components/message/message.component';
+import { StreamComponent } from './components/stream/stream.component';
+import { UsersComponent } from './components/users/users.component';
+import { InfoComponent } from './components/info/info.component';
 
 @NgModule({
-  declarations: [RoomComponent, LeftRoomBarComponent],
+  declarations: [RoomComponent, LeftRoomBarComponent, InputFieldComponent, MessageComponent, StreamComponent, UsersComponent, InfoComponent],
   imports: [
     CommonModule,
     RoomRoutingModule,

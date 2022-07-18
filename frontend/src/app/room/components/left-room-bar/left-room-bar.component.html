@@ -15,7 +15,7 @@
         </mat-card>
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="room-tree">
             <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-                <button mat-icon-button (click)="changeRoom(node.roomAddress)">
+                <button mat-icon-button disableRipple="true" (click)="changeRoom(node.roomAddress)">
                     <p [ngClass]="{'selectedRoom': roomSelected(node.roomAddress) }">{{node.name}}</p>
 
                 </button>
