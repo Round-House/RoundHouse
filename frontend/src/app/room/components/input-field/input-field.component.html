@@ -1,10 +1,12 @@
 <div class="container">
     <div class="text-box">
-        <mat-form-field class="input-field" appearance="standard">
-            <textarea matInput cdkTextareaAutosize></textarea>
-        </mat-form-field>
+        <form [formGroup]="messageForm">
+            <mat-form-field class="input-field" appearance="standard">
+                <textarea matInput cdkTextareaAutosize formControlName="text"></textarea>
+            </mat-form-field>
+        </form>
     </div>
-    <button mat-flat-button class="send-button" color="primary">
+    <button mat-flat-button class="send-button" color="primary" (click)="sendMessage()">
         <mat-icon>send</mat-icon>
     </button>
 </div>

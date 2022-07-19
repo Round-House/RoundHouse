@@ -19,6 +19,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,8 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule,
     MatCardModule,
     MatInputModule,
+    FormsModule, 
+    ReactiveFormsModule,
   ],
 })
 export class RoomModule {}

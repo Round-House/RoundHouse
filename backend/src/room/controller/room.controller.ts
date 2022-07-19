@@ -143,7 +143,7 @@ export class RoomController {
             );
     }
 
-    @Post('/stream/createMessage')
+    @Post('/stream')
     @UseGuards(AuthGuard('jwt'))
     createMessage(
         @Query('roomAddress') roomAddress: string,
@@ -160,7 +160,7 @@ export class RoomController {
             );
     }
 
-    @Get('/stream/messages')
+    @Get('/stream')
     @UseGuards(AuthGuard('jwt'))
     getStream(
         @Query('roomAddress') roomAddress: string,
@@ -174,7 +174,7 @@ export class RoomController {
                 page: Number(page),
                 route:
                     ROOM_ENTRIES_URL +
-                    '/stream/messages?roomAddress=' +
+                    '/stream?roomAddress=' +
                     roomAddress,
             })
             .pipe(
