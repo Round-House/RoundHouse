@@ -13,6 +13,8 @@ export class InputFieldComponent implements OnInit {
   
   messageForm!: FormGroup;
 
+  inputText = "";
+
   constructor(
     private formBuilder: FormBuilder,
     private roomService: RoomService,
@@ -29,6 +31,10 @@ export class InputFieldComponent implements OnInit {
   }
 
   sendMessage() {
-    this.roomService.createMessage(this.address!!, this.messageForm.value);
+    if(this.inputText.length > 0) {
+      this.roomService.createMessage(this.address!!, this.messageForm.value);
+      this.messageForm.reset();
+      this.inputText = "";
+    }
   }
 }
