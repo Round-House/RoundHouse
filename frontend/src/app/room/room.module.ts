@@ -2,8 +2,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { RoomRoutingModule } from './room-routing.module';
+
 import { RoomComponent } from './components/room/room.component';
 import { LeftRoomBarComponent } from './components/left-room-bar/left-room-bar.component';
+import { InputFieldComponent } from './components/input-field/input-field.component';
+import { MessageComponent } from './components/message/message.component';
+import { StreamComponent } from './components/stream/stream.component';
+import { UsersComponent } from './components/users/users.component';
+import { InfoComponent } from './components/info/info.component';
 
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,14 +18,18 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { InputFieldComponent } from './components/input-field/input-field.component';
-import { MessageComponent } from './components/message/message.component';
-import { StreamComponent } from './components/stream/stream.component';
-import { UsersComponent } from './components/users/users.component';
-import { InfoComponent } from './components/info/info.component';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-  declarations: [RoomComponent, LeftRoomBarComponent, InputFieldComponent, MessageComponent, StreamComponent, UsersComponent, InfoComponent],
+  declarations: [
+    RoomComponent,
+    LeftRoomBarComponent,
+    InputFieldComponent,
+    MessageComponent,
+    StreamComponent,
+    UsersComponent,
+    InfoComponent,
+  ],
   imports: [
     CommonModule,
     RoomRoutingModule,
@@ -30,6 +40,7 @@ import { InfoComponent } from './components/info/info.component';
     MatTreeModule,
     MatButtonModule,
     MatCardModule,
+    MatInputModule,
   ],
 })
 export class RoomModule {}

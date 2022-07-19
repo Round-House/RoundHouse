@@ -8,8 +8,18 @@ mat-sidenav {
     scrollbar-width: none;
 }
 
-mat-sidenav-content::-webkit-scrollbar {
-    display: none;
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: #424242;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #303030;
 }
 
 .room-tree-invisible {
