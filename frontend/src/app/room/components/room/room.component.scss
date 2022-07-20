@@ -18,3 +18,11 @@ app-left-room-bar {
 p {
     color: #fff
 }
+
+app-message {
+    min-height: 10%;
+    width: 100%;
+    display: flex;
+    overflow: overlay;
+
+}
