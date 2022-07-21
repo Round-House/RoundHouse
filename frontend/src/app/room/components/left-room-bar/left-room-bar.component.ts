@@ -21,7 +21,7 @@ export class LeftRoomBarComponent implements OnInit {
 
   currentRoom: string | undefined;
 
-  param: any;
+  param: string | null = this.route.snapshot.queryParamMap.get('hub');
 
   constructor(
     private route: ActivatedRoute,

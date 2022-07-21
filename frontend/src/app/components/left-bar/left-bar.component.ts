@@ -13,8 +13,6 @@ export class LeftBarComponent implements OnInit {
   
   joinPage = false;
 
-  rooms: TreeRoomDto | undefined;
-
   userRooms: TreeRoomDto[] = [];
 
   constructor(

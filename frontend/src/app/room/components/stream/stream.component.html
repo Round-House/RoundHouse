@@ -1,1 +1,6 @@
-<p>stream works!</p>
+<div id="container">
+    <div class="stream" *ngFor="let message of messages">
+        <app-message [message]="message.text" [account]="message.account.username"></app-message>
+    </div>
+    <div class="bottom-spacing"></div>
+</div>

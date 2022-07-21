@@ -18,4 +18,8 @@ export class RoomService {
       message
     ).subscribe();
   }
+
+  getMessages(address: string, page: number) {
+    return this.http.get('/api/rooms/stream?roomAddress=' + address + '&page=' + page);
+  }
 }

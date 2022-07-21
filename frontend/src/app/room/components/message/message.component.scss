@@ -15,6 +15,7 @@
     flex-direction: column;
     justify-content: start;
     align-items: start;
+    overflow: overlay;
 }
 
 .logo,
@@ -39,4 +40,8 @@
     margin-top: -6px;
     margin-left: 2%;
     color: white;
+    overflow: overlay;
+    overflow-wrap: break-word;
+    display: inline-block;
+    word-break: break-word;
 }
