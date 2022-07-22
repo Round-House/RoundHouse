@@ -164,6 +164,7 @@ export class RoomStreamService {
                                     return from(paginate<Message>(this.messageRepository, options, {
                                         relations: ['account', 'comments'],
                                         where: { stream },
+                                        order: { createdAt: 'DESC' },
                                     }),).pipe(
                                         map((messages: Pagination<Message, IPaginationMeta>) => {
                                             deliverable.messages = messages;

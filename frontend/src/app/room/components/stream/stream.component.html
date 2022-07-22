@@ -1,6 +1,10 @@
 <div id="container">
-    <div class="stream" *ngFor="let message of messages">
-        <app-message [message]="message.text" [account]="message.account.username"></app-message>
+    <div id="white-space" [style.height.px]="whiteSpaceHeight"></div>
+    <div id="inner">
+        <div class="stream" *ngFor="let message of messages">
+            <app-message [message]="message.text" [account]="message.account.username" [color]="message.account.color">
+            </app-message>
+        </div>
     </div>
     <div class="bottom-spacing"></div>
 </div>

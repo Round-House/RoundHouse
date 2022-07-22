@@ -1,5 +1,5 @@
 <div class="container">
-    <span *ngIf="true" class="color"></span>
+    <span *ngIf="true" class="color" [ngStyle]="{'background-color':color}"></span>
     <span class="text">
         <p class="username">{{account}}</p>
         <p class="message">{{message}}</p>

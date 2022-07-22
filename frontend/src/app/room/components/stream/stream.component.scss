@@ -1,7 +1,12 @@
 #container {
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     -ms-overflow-style: none;
+}
+
+#inner {
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 .bottom-spacing {
@@ -17,7 +22,7 @@ app-message {
 
 ::-webkit-scrollbar-track {
     border-radius: 10px;
-    background-color: #3a3a3a;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 ::-webkit-scrollbar {
@@ -36,5 +41,5 @@ app-message {
 }
 
 ::-webkit-scrollbar-corner {
-    background: rgba(0,0,0,0);
-  }
+    background: rgba(0, 0, 0, 0);
+}

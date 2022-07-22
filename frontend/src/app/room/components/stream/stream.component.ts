@@ -16,7 +16,9 @@ export class StreamComponent implements OnInit, AfterViewChecked {
 
   messages: any[] = [];
 
-  myScrollVariable: number = 0;
+  scrollAmount: number = 0;
+
+  whiteSpaceHeight: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -48,7 +50,15 @@ export class StreamComponent implements OnInit, AfterViewChecked {
 
   ngAfterViewChecked() {        
     var streamScroll = document.getElementById("container");
-    this.myScrollVariable = streamScroll!!.scrollHeight;
+    this.scrollAmount = streamScroll!!.scrollHeight;
     streamScroll!!.scrollTop = streamScroll!!.scrollHeight; 
+
+    var inner = document.getElementById("inner");
+    this.whiteSpaceHeight = streamScroll!!.offsetHeight - (inner!!.offsetHeight + 80);
+    if(this.whiteSpaceHeight < 0) {
+      this.whiteSpaceHeight = 0;
+    }
+
+    
 } 
 }

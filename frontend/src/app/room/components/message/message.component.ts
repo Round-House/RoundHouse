@@ -9,6 +9,7 @@ export class MessageComponent implements OnInit {
 
   @Input() account: String = "";
   @Input() message: String = "";
+  @Input() color: String = "";
 
   constructor() { }
 

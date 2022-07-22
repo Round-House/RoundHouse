@@ -21,7 +21,6 @@ export class LeftBarComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.subscribe((url: any) => {
-      console.log(url.url);
       if (url.url === '/join') {
         this.joinPage = true;
       } else if (url.url === undefined) {

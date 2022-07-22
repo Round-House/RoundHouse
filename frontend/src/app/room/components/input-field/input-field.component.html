@@ -2,11 +2,13 @@
     <div class="text-box">
         <form [formGroup]="messageForm" (keydown.enter)="sendMessage()">
             <mat-form-field class="input-field" appearance="standard">
-                <textarea matInput cdkTextareaAutosize formControlName="text" (keydown.enter)="$event.preventDefault()" [(ngModel)]="inputText"></textarea>
+                <textarea matInput cdkTextareaAutosize formControlName="text" (keydown.enter)="$event.preventDefault()"
+                    [(ngModel)]="inputText"></textarea>
             </mat-form-field>
         </form>
     </div>
-    <button mat-flat-button class="send-button" color="primary" (click)="sendMessage()" [disabled]="!(inputText.length > 0)">
+    <button mat-flat-button class="send-button" color="primary" (click)="sendMessage()"
+        [disabled]="!(inputText.length > 0)">
         <mat-icon>send</mat-icon>
     </button>
 </div>
