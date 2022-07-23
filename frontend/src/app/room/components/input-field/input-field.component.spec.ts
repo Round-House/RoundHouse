@@ -8,9 +8,8 @@ describe('InputFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InputFieldComponent ]
-    })
-    .compileComponents();
+      declarations: [InputFieldComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

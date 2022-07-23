@@ -3,29 +3,27 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
   selector: 'app-message',
   templateUrl: './message.component.html',
-  styleUrls: ['./message.component.scss']
+  styleUrls: ['./message.component.scss'],
 })
 export class MessageComponent implements OnInit {
+  @Input() account: String = '';
+  @Input() message: String = '';
+  @Input() color: String = '';
+  @Input() viewer: String = '';
+  @Input() nextAuthor: String = '';
 
-  @Input() account: String = "";
-  @Input() message: String = "";
-  @Input() color: String = "";
-  @Input() viewer: String = "";
-  @Input() nextAuthor: String = "";
-
-  background: String = "";
+  background: String = '';
   repeatAuthor: boolean = false;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     if (this.account == this.viewer) {
-      this.background = "#0000001b";
+      this.background = '#0000001b';
     }
 
     if (this.nextAuthor == this.account) {
       this.repeatAuthor = true;
     }
   }
-
 }

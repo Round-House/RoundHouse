@@ -1,3 +1,3 @@
 export class CreateMessageDto {
-    text?: string;
+  text?: string;
 }

@@ -4,14 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FollowingRoutingModule } from './following-routing.module';
 import { FollowingComponent } from './components/following/following.component';
 
-
 @NgModule({
-  declarations: [
-    FollowingComponent
-  ],
-  imports: [
-    CommonModule,
-    FollowingRoutingModule
-  ]
+  declarations: [FollowingComponent],
+  imports: [CommonModule, FollowingRoutingModule],
 })
-export class FollowingModule { }
+export class FollowingModule {}

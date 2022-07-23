@@ -10,10 +10,10 @@ import { RoomService } from '../../service/room.service';
 })
 export class InputFieldComponent implements OnInit {
   private address: string | undefined = undefined;
-  
+
   messageForm!: FormGroup;
 
-  inputText = "";
+  inputText = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -24,17 +24,17 @@ export class InputFieldComponent implements OnInit {
   ngOnInit(): void {
     this.messageForm = this.formBuilder.group({
       text: this.messageForm,
-    })
+    });
     this.route.queryParams.subscribe((params) => {
       this.address = params['address'];
     });
   }
 
   sendMessage() {
-    if(this.inputText.length > 0) {
+    if (this.inputText.length > 0) {
       this.roomService.createMessage(this.address!!, this.messageForm.value);
       this.messageForm.reset();
-      this.inputText = "";
+      this.inputText = '';
     }
   }
 }

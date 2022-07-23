@@ -55,11 +55,9 @@ export class LeftRoomBarComponent implements OnInit {
     this.currentRoom = address;
     const queryParams: Params = { address: address };
 
-  this.router.navigate(
-    [], 
-    {
+    this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: queryParams, 
+      queryParams: queryParams,
       queryParamsHandling: 'merge', // remove to replace all query params by provided
     });
   }

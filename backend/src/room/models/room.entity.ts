@@ -18,7 +18,7 @@ import { MemberEntity } from '../member/models/member.entity';
 import { Member } from '../member/models/member.interface';
 
 @Entity()
-@Tree("materialized-path")
+@Tree('materialized-path')
 export class RoomEntity {
     //Basic Info
     @PrimaryGeneratedColumn()
@@ -40,7 +40,7 @@ export class RoomEntity {
     @Column({ nullable: true })
     banner: string;
 
-    @Column({ default: '#41345f'})
+    @Column({ default: '#41345f' })
     color: string;
 
     //Room Tree

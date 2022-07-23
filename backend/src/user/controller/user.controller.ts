@@ -28,7 +28,9 @@ export class UserController {
     }
 
     @Get('/checkUsernameTaken')
-    checkUsernameTaken(@Query('username') username: string): Observable<boolean> {
+    checkUsernameTaken(
+        @Query('username') username: string,
+    ): Observable<boolean> {
         return this.userService.checkUsernameTaken(username);
     }
 
@@ -50,14 +52,21 @@ export class UserController {
         @Query('username') username: string,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
-        ): Observable<StreamDeliverableDto | Object> {
-            return this.userService.getStreamMessages(username, {limit: Number(limit),
+    ): Observable<StreamDeliverableDto | Object> {
+        return this.userService
+            .getStreamMessages(username, {
+                limit: Number(limit),
                 page: Number(page),
-                route: ROOM_ENTRIES_URL + '/stream/messages?username=' + username}).pipe(
-                map((stream: StreamDeliverableDto) => {return stream}),
+                route:
+                    ROOM_ENTRIES_URL + '/stream/messages?username=' + username,
+            })
+            .pipe(
+                map((stream: StreamDeliverableDto) => {
+                    return stream;
+                }),
                 catchError((err) => of({ error: err.message })),
             );
-        }
+    }
 
     @Post('/stream/write')
     @UseGuards(AuthGuard('jwt'))

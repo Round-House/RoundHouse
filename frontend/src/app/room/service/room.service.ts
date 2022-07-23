@@ -13,13 +13,14 @@ export class RoomService {
   }
 
   createMessage(address: string, message: CreateMessageDto) {
-    return this.http.post<any>(
-      '/api/rooms/stream?roomAddress=' + address,
-      message
-    ).subscribe();
+    return this.http
+      .post<any>('/api/rooms/stream?roomAddress=' + address, message)
+      .subscribe();
   }
 
   getMessages(address: string, page: number) {
-    return this.http.get('/api/rooms/stream?roomAddress=' + address + '&page=' + page);
+    return this.http.get(
+      '/api/rooms/stream?roomAddress=' + address + '&page=' + page
+    );
   }
 }

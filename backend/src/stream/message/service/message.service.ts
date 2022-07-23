@@ -9,9 +9,10 @@ import { Message } from '../models/message.interface';
 export class MessageService {
     constructor(
         @InjectRepository(MessageEntity)
-        private readonly streamRepository: Repository<MessageEntity>,) {}
+        private readonly streamRepository: Repository<MessageEntity>,
+    ) {}
 
-        findAll(): Observable<Message[]> {
-            return from(this.streamRepository.find());
-        }
+    findAll(): Observable<Message[]> {
+        return from(this.streamRepository.find());
+    }
 }

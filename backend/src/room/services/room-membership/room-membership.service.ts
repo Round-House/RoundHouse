@@ -70,7 +70,10 @@ export class RoomMembershipService {
         );
     }
 
-    getUsersSubRooms(username: string, roomAddress: string): Observable<TreeRoomDto[]> {
+    getUsersSubRooms(
+        username: string,
+        roomAddress: string,
+    ): Observable<TreeRoomDto[]> {
         return from(
             this.roomRepository.findOneOrFail({
                 where: {
@@ -104,7 +107,9 @@ export class RoomMembershipService {
                                         room.roomAddress,
                                     ),
                                 );
-                                const treeRoomList = tempRoomList.map((room) => new TreeRoomDto(room));
+                                const treeRoomList = tempRoomList.map(
+                                    (room) => new TreeRoomDto(room),
+                                );
                                 return treeRoomList;
                             }),
                             catchError((err) => throwError(() => err)),

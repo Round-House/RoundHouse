@@ -1,45 +1,44 @@
 #container {
-    height: 100%;
-    overflow-y: auto;
-    -ms-overflow-style: none;
+  height: 100%;
+  overflow-y: auto;
+  -ms-overflow-style: none;
 }
 
 #inner {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .bottom-spacing {
-    height: 80px;
+  height: 80px;
 }
 
 app-message {
-    min-height: 10%;
-    width: 100%;
-    display: flex;
+  min-height: 10%;
+  width: 100%;
+  display: flex;
 }
 
-
 ::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background-color: rgba(0, 0, 0, 0);
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: #303030;
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #303030;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #282828;
+  background: #282828;
 }
 
 ::-webkit-scrollbar-corner {
-    background: rgba(0, 0, 0, 0);
+  background: rgba(0, 0, 0, 0);
 }

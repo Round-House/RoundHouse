@@ -5,11 +5,12 @@ import { RoomComponent } from './components/room/room.component';
 const routes: Routes = [
   {
     path: '',
-    component: RoomComponent
-  },];
+    component: RoomComponent,
+  },
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class RoomRoutingModule { }
+export class RoomRoutingModule {}

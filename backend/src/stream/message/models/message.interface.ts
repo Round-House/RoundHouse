@@ -1,5 +1,5 @@
-import { Stream } from "src/stream/models/stream.interface";
-import { User } from "src/user/models/user.interface";
+import { Stream } from 'src/stream/models/stream.interface';
+import { User } from 'src/user/models/user.interface';
 
 export interface Message {
     id: number;

@@ -1,25 +1,23 @@
 <div *ngIf="!removed">
-    <mat-card>
-        <button class="close" mat-button (click)="removeRoom()">
-            <mat-icon>close</mat-icon>
-        </button>
-        <mat-card-header>
-            <div mat-card-avatar class="header-image"></div>
-            <mat-card-title>
-                <p>
-                    And Join: {{roomName}}
-                </p>
-            </mat-card-title>
-            <mat-card-subtitle>
-                <p>
-                    {{ roomAddress }}
-                </p>
-            </mat-card-subtitle>
-            <mat-card-content>
-                <p class="desc">
-                    {{ roomDescription }}
-                </p>
-            </mat-card-content>
-        </mat-card-header>
-    </mat-card>
+  <mat-card>
+    <button class="close" mat-button (click)="removeRoom()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-card-header>
+      <div mat-card-avatar class="header-image"></div>
+      <mat-card-title>
+        <p>And Join: {{ roomName }}</p>
+      </mat-card-title>
+      <mat-card-subtitle>
+        <p>
+          {{ roomAddress }}
+        </p>
+      </mat-card-subtitle>
+      <mat-card-content>
+        <p class="desc">
+          {{ roomDescription }}
+        </p>
+      </mat-card-content>
+    </mat-card-header>
+  </mat-card>
 </div>

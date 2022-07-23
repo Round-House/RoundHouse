@@ -10,7 +10,16 @@ import { UserService } from './service/user.service';
 import { ExternalMembershipEntity } from 'src/room/member/models/external-membership.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([UserEntity, RoomEntity, MessageEntity, StreamEntity, ExternalMembershipEntity]),  StreamModule],
+    imports: [
+        TypeOrmModule.forFeature([
+            UserEntity,
+            RoomEntity,
+            MessageEntity,
+            StreamEntity,
+            ExternalMembershipEntity,
+        ]),
+        StreamModule,
+    ],
     controllers: [UserController],
     providers: [UserService],
 })

@@ -119,7 +119,11 @@ export class RoomStreamService {
         );
     }
 
-    getStream(roomAddress: string, user: any, options: IPaginationOptions): Observable<StreamDeliverableDto> {
+    getStream(
+        roomAddress: string,
+        user: any,
+        options: IPaginationOptions,
+    ): Observable<StreamDeliverableDto> {
         if (user.username === undefined) {
             throw Error(`Invalid username.`);
         }
@@ -158,18 +162,36 @@ export class RoomStreamService {
                                 }),
                             ).pipe(
                                 switchMap((stream: Stream) => {
-                                    const deliverable = new StreamDeliverableDto();
+                                    const deliverable =
+                                        new StreamDeliverableDto();
                                     deliverable.stream = stream;
 
-                                    return from(paginate<Message>(this.messageRepository, options, {
-                                        relations: ['account', 'comments'],
-                                        where: { stream },
-                                        order: { createdAt: 'DESC' },
-                                    }),).pipe(
-                                        map((messages: Pagination<Message, IPaginationMeta>) => {
-                                            deliverable.messages = messages;
-                                            return deliverable;
-                                        }),);
+                                    return from(
+                                        paginate<Message>(
+                                            this.messageRepository,
+                                            options,
+                                            {
+                                                relations: [
+                                                    'account',
+                                                    'comments',
+                                                ],
+                                                where: { stream },
+                                                order: { createdAt: 'DESC' },
+                                            },
+                                        ),
+                                    ).pipe(
+                                        map(
+                                            (
+                                                messages: Pagination<
+                                                    Message,
+                                                    IPaginationMeta
+                                                >,
+                                            ) => {
+                                                deliverable.messages = messages;
+                                                return deliverable;
+                                            },
+                                        ),
+                                    );
                                 }),
                                 catchError((err) => throwError(() => err)),
                             );

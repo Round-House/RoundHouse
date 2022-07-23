@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
-import { JwtHelperService } from "@auth0/angular-jwt";
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 export const JWT_NAME = 'local-token';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
-  constructor(private jwtHelper: JwtHelperService) { }
+  constructor(private jwtHelper: JwtHelperService) {}
 
   isAuthenticated(): boolean {
     const tokenTemp = localStorage.getItem(JWT_NAME);
-    
-    const token = (tokenTemp === null) ? undefined : tokenTemp;
+
+    const token = tokenTemp === null ? undefined : tokenTemp;
     return !this.jwtHelper.isTokenExpired(token);
   }
 }

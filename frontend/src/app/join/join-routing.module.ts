@@ -5,12 +5,12 @@ import { JoinComponent } from './components/join/join.component';
 const routes: Routes = [
   {
     path: '',
-    component: JoinComponent
-  }
+    component: JoinComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class JoinRoutingModule { }
+export class JoinRoutingModule {}

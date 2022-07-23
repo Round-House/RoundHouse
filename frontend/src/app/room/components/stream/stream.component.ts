@@ -43,7 +43,6 @@ export class StreamComponent implements OnInit, AfterViewChecked {
       .getMessages(this.route.snapshot.queryParams['address'], this.page)
       .pipe(
         map((streamPage: any) => {
-
           var messages: any[] = streamPage.messages.items;
 
           messages = messages.reverse();

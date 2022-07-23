@@ -10,7 +10,7 @@ import {
     OneToOne,
     JoinColumn,
 } from 'typeorm';
-import "reflect-metadata"
+import 'reflect-metadata';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserAuth } from 'src/auth/models/userAuth.interface';
 import { UserAuthEntity } from 'src/auth/models/userAuth.entity';
@@ -32,10 +32,10 @@ export class UserEntity {
     @Column({ nullable: true })
     nickname: string;
 
-    @Column({type: 'enum', enum: UserRole, default: UserRole.USER})
+    @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
     role: UserRole;
 
-    @OneToOne(() => UserAuthEntity, {cascade: true})
+    @OneToOne(() => UserAuthEntity, { cascade: true })
     @JoinColumn()
     auth: UserAuth;
 
@@ -50,7 +50,7 @@ export class UserEntity {
     @OneToMany(() => MessageEntity, (message) => message.account)
     messages: Message[];
 
-    @OneToOne(() => StreamEntity, {cascade: true})
+    @OneToOne(() => StreamEntity, { cascade: true })
     @JoinColumn()
     stream: Stream;
 
@@ -62,7 +62,7 @@ export class UserEntity {
     externalMemberships: ExternalMembership[];
 
     //Misc
-    @Column({nullable: true})
+    @Column({ nullable: true })
     link: string;
 
     @Column({ default: false })
@@ -71,6 +71,6 @@ export class UserEntity {
     @CreateDateColumn()
     joined: Date;
 
-    @Column({ default: '#41345f'})
+    @Column({ default: '#41345f' })
     color: string;
 }

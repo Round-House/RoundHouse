@@ -1,5 +1,5 @@
-import { Stream } from "src/stream/models/stream.interface";
-import { Member } from "../member/models/member.interface";
+import { Stream } from 'src/stream/models/stream.interface';
+import { Member } from '../member/models/member.interface';
 
 export interface Room {
     //Basic Info
@@ -23,5 +23,4 @@ export interface Room {
 
     //Messages
     stream: Stream;
-
 }

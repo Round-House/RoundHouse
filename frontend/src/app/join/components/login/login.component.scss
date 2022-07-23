@@ -1,28 +1,28 @@
 .example-right-align {
-    text-align: right;
+  text-align: right;
 }
 
 input.example-right-align::-webkit-outer-spin-button,
 input.example-right-align::-webkit-inner-spin-button {
-    display: none;
+  display: none;
 }
 
 input.example-right-align {
-    -moz-appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 mat-card {
-    max-width: 400px;
+  max-width: 400px;
 }
 
 mat-card-title {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 mat-form-field {
-    width: 100%;
+  width: 100%;
 }
 
 button {
-    width: 100%;
+  width: 100%;
 }

@@ -1,4 +1,4 @@
 export class UserJwtDto {
-    username?: string;
-    email?: string;
+  username?: string;
+  email?: string;
 }

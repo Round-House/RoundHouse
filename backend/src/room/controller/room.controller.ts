@@ -172,10 +172,7 @@ export class RoomController {
             .getStream(roomAddress, req.user.user, {
                 limit: Number(limit),
                 page: Number(page),
-                route:
-                    ROOM_ENTRIES_URL +
-                    '/stream?roomAddress=' +
-                    roomAddress,
+                route: ROOM_ENTRIES_URL + '/stream?roomAddress=' + roomAddress,
             })
             .pipe(
                 map((stream: StreamDeliverableDto) => {
