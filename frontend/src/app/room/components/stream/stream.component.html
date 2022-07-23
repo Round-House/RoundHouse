@@ -2,7 +2,8 @@
     <div id="white-space" [style.height.px]="whiteSpaceHeight"></div>
     <div id="inner">
         <div class="stream" *ngFor="let message of messages">
-            <app-message [message]="message.text" [account]="message.account.username" [color]="message.account.color">
+            <app-message [message]="message.text" [account]="message.account.username" [color]="message.account.color"
+                [viewer]="username" [nextAuthor]="message.nextAuthor">
             </app-message>
         </div>
     </div>

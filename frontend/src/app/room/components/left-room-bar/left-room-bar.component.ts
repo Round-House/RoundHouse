@@ -4,7 +4,7 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { RoomService } from '../../service/room.service';
-import { RoomDto } from '../models/room.dto';
+import { RoomDto } from '../../models/room.dto';
 
 @Component({
   selector: 'app-left-room-bar',

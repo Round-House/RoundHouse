@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CreateMessageDto } from '../components/models/create-message.dto';
+import { CreateMessageDto } from '../models/create-message.dto';
 
 @Injectable({
   providedIn: 'root',

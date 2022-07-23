@@ -20,7 +20,7 @@
     max-height: 400px;
     background-color: #303030;
     width: 95%;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .send-button {
@@ -44,6 +44,10 @@
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     background-color: #303030;
+}
+
+::-webkit-scrollbar-corner {
+    background: rgba(0, 0, 0, 0);
 }
 
 p, textarea {
