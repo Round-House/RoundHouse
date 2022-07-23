@@ -22,7 +22,7 @@ export class StreamComponent implements OnInit, AfterViewChecked {
 
   username: string = '';
 
-  tempMessage: any | null = null;
+  tempAuthor: any | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,31 +30,34 @@ export class StreamComponent implements OnInit, AfterViewChecked {
   ) {}
 
   ngOnInit(): void {
+    // Reset variables on room change
     this.messages = [];
-    this.tempMessage = null;
+    this.tempAuthor = null;
 
-    // Get username from token to highlight it in the stream
+    // Get username from token to highlight users messages in the stream
     var jwt: any = jwt_decode(localStorage.getItem('local-token')!!);
     this.username = jwt.user.username;
 
+    // Go through all messages in the room and add them to the stream
     this.roomService
       .getMessages(this.route.snapshot.queryParams['address'], this.page)
       .pipe(
         map((streamPage: any) => {
-          streamPage.messages.items.forEach((message: any) => {
-            if (this.tempMessage != null) {
-              this.tempMessage.nextAuthor = message.account.username;
-              this.messages.push(this.tempMessage);
-            }
-            this.tempMessage = message;
+
+          var messages: any[] = streamPage.messages.items;
+
+          messages = messages.reverse();
+
+          messages.forEach((message: any) => {
+            message.nextAuthor = this.tempAuthor;
+            this.messages.push(message);
+            this.tempAuthor = message.account.username;
           });
-          if (this.tempMessage != null) {
-            this.messages.push(this.tempMessage);
-          }
         })
       )
       .subscribe();
 
+    // Refresh the component on address change
     this.route.queryParams.subscribe((params) => {
       if (this.currentRoom != params['address']) {
         this.currentRoom = params['address'];
@@ -63,6 +66,7 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  // If there are less messages then the length of the stream, add whitespace.
   ngAfterViewChecked() {
     var streamScroll = document.getElementById('container');
     this.scrollAmount = streamScroll!!.scrollHeight;
