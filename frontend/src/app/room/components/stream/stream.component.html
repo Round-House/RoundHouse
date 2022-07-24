@@ -1,13 +1,14 @@
 <div id="container">
   <div id="white-space" [style.height.px]="whiteSpaceHeight"></div>
   <div id="inner">
-    <div class="stream" *ngFor="let message of messages">
+    <div class="stream" *ngFor="let message of messages; let i = index">
       <app-message
         [message]="message.text"
         [account]="message.account.username"
         [color]="message.account.color"
         [viewer]="username"
         [nextAuthor]="message.nextAuthor"
+        id="target{{ i + 1 }}"
       >
       </app-message>
     </div>

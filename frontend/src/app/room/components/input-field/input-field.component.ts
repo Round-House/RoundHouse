@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { RoomService } from '../../service/room.service';
+import { RoomService } from '../../services/room/room.service';
 
 @Component({
   selector: 'app-input-field',

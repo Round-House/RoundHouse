@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { map } from 'rxjs';
-import { RoomService } from '../../service/room.service';
+import { RoomService } from '../../services/room/room.service';
 import { RoomDto } from '../../models/room.dto';
 
 @Component({

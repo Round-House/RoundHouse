@@ -165,7 +165,7 @@ export class RoomController {
     getStream(
         @Query('roomAddress') roomAddress: string,
         @Query('page') page: number = 1,
-        @Query('limit') limit: number = 20,
+        @Query('limit') limit: number = 10,
         @Request() req: any,
     ): Observable<StreamDeliverableDto | Object> {
         return this.roomStreamService

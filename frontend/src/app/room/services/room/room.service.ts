@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CreateMessageDto } from '../models/create-message.dto';
+import { map } from 'rxjs';
+import { CreateMessageDto } from '../../models/create-message.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -19,8 +20,8 @@ export class RoomService {
   }
 
   getMessages(address: string, page: number) {
-    return this.http.get(
-      '/api/rooms/stream?roomAddress=' + address + '&page=' + page
-    );
+    return this.http
+      .get('/api/rooms/stream?roomAddress=' + address + '&page=' + page)
+      .pipe(map((response) => response));
   }
 }
