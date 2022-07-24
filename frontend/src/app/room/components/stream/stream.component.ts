@@ -1,6 +1,5 @@
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs';
 import jwt_decode from 'jwt-decode';
 import { RoomService } from '../../services/room/room.service';
 import { InfiniteScrollingService } from '../../services/infiniteScrolling/infinite-scrolling.service';
@@ -12,23 +11,22 @@ import { InfiniteScrollingService } from '../../services/infiniteScrolling/infin
 })
 export class StreamComponent implements OnInit, AfterViewChecked {
   page = 1;
-  endLimit: number = 10;
 
   currentRoom: string | null = this.route.snapshot.queryParamMap.get('address');
 
   messages: any[] = [];
 
-  scrollAmount: number = 0;
+  // Logic for viewing stream
   whiteSpaceHeight: number = 0;
   streamHeight: number = 0;
   finishedSetup: boolean = false;
-
-  username: string = '';
-  nextAuthor: any | null = null;
-  tempMessage: any | null = null;
-
   moreMessages = true;
   scrollToBottom = true;
+  gettingMessages = false;
+
+  // Variables for highlighting users messages
+  username: string = '';
+  nextAuthor: any | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,9 +39,9 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     this.messages = [];
     this.nextAuthor = null;
     this.page = 1;
-    this.endLimit = 10;
-    this.tempMessage = null;
     this.moreMessages = true;
+    this.scrollToBottom = true;
+    this.whiteSpaceHeight = 0;
 
     // Get username from token to highlight users messages in the stream
     var jwt: any = jwt_decode(localStorage.getItem('local-token')!!);
@@ -52,10 +50,11 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     // Go through first page of messages in the room and add them to the stream
     this.getMessageData(this.page);
 
+    // Then, if at the top of the stream, check for more messages
     this.infiniteScrollingService.getObservable().subscribe((status) => {
-      if (status) {
+      if (status && !this.gettingMessages) {
         this.page = this.page + 1;
-        this.endLimit = this.endLimit + 10;
+        this.nextAuthor = null;
         this.getMessageData(this.page);
       }
     });
@@ -69,72 +68,78 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  // Get the messages from the room
   private getMessageData(page: number) {
+    // Helps load one page of messages at a time
+    this.gettingMessages = true;
+
+    // Don't hit the server if there are no more messages
     if (this.moreMessages) {
       this.roomService
         .getMessages(this.route.snapshot.queryParams['address'], page)
         .subscribe((response: any) => {
+          // If there are no more messages, set the flag to false and return
           if (response.messages.items.length == 0) {
             this.moreMessages = false;
+            this.gettingMessages = false;
             return;
           }
-          const messages: any[] = response.messages.items;
-          this.messages = messages.reverse().concat(this.messages);
-          let clear = setInterval(
-            () => {
-              let target = document.querySelector(`#target${1}`);
-              if (target) {
-                clearInterval(clear);
-                this.infiniteScrollingService.setObserver().observe(target);
-              }
+
+          // Add the messages to the stream
+          var messages: any[] = response.messages.items.reverse();
+
+          messages.forEach((message: any) => {
+            message.nextAuthor = this.nextAuthor;
+            this.nextAuthor = message.account.username;
+          });
+
+          console.log(messages);
+
+          this.messages = messages.concat(this.messages);
+
+          // Set a flag for when the user sees the top message
+          let clear = setInterval(() => {
+            let target = document.querySelector(`#target${1}`);
+            if (target) {
+              clearInterval(clear);
+              this.infiniteScrollingService.setObserver().observe(target);
             }
-            // , 2000
-          );
+          });
+
+          // Messages are loaded, so set the flag to false
+          this.gettingMessages = false;
+
+          // Keep the scroll bar at the current message being viewed
+          var streamScroll = document.getElementById('container');
+          streamScroll!!.scrollTop = 1;
         });
     }
   }
 
-  private getMoreMessages(page: number): void {
-    this.tempMessage = null;
-    this.page = page + 1;
-    this.roomService
-      .getMessages(this.route.snapshot.queryParams['address'], page)
-      .pipe(
-        map((streamPage: any) => {
-          if (page >= streamPage.messages.meta.totalPages) {
-            this.moreMessages = false;
-          }
-          streamPage.messages.items.forEach((message: any) => {
-            if (this.tempMessage != null) {
-              this.tempMessage.nextAuthor = message.account.username;
-              this.messages.unshift(this.tempMessage);
-            }
-            this.tempMessage = message;
-          });
-          if (this.tempMessage != null) {
-            this.messages.unshift(this.tempMessage);
-          }
-        })
-      )
-      .subscribe();
-  }
-
-  // If there are less messages then the length of the stream,
-  // check for more messages, and if not, add whitespace.
   ngAfterViewChecked() {
     var inner = document.getElementById('inner');
     var streamScroll = document.getElementById('container');
 
-    var whiteSpaceHeight =
-      streamScroll!!.offsetHeight - (inner!!.offsetHeight + 80);
-    if (whiteSpaceHeight < 0) {
-      whiteSpaceHeight = 0;
+    // If there are less messages then the hight of the screen, add whitespace
+    if (
+      !this.moreMessages &&
+      streamScroll!!.scrollHeight <= streamScroll!!.clientHeight
+    ) {
+      var whiteSpaceHeight =
+        streamScroll!!.offsetHeight - (inner!!.offsetHeight + 80);
+      if (whiteSpaceHeight < 0) {
+        whiteSpaceHeight = 0;
+      }
+
+      this.whiteSpaceHeight = whiteSpaceHeight;
     }
 
-    this.whiteSpaceHeight = whiteSpaceHeight;
-
-    if (this.scrollToBottom && inner!!.offsetHeight > 0) {
-      //this.scrollAmount = streamScroll!!.scrollHeight;
+    // On first load, go to the bottom of the stream
+    if (
+      this.scrollToBottom &&
+      streamScroll!!.scrollHeight > streamScroll!!.clientHeight &&
+      !this.gettingMessages
+    ) {
       streamScroll!!.scrollTop = streamScroll!!.scrollHeight;
       this.scrollToBottom = false;
     }

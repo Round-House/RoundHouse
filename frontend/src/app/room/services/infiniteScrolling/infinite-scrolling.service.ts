@@ -20,9 +20,12 @@ export class InfiniteScrollingService {
   }
   intersectionCallback(entries: any[], observer: any) {
     entries.forEach((entry) => {
-      entry.intersectionRatio === 1
-        ? this.intersectionSubject.next(true)
-        : this.intersectionSubject.next(false);
+      // Olny trigger if we are at the top message
+      if (entry.target.id === 'target1') {
+        entry.intersectionRatio === 1
+          ? this.intersectionSubject.next(true)
+          : this.intersectionSubject.next(false);
+      }
     });
   }
   setObserver() {
