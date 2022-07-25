@@ -1,1 +1,1 @@
-export class memberDto{}
+export class memberDto {}

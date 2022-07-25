@@ -1,13 +1,12 @@
-import { IsOptional } from "class-validator";
-import { Room } from "./room.interface";
+import { IsOptional } from 'class-validator';
+import { Room } from './room.interface';
 
 export class TreeRoomDto {
-    
     id: number;
     name: string;
     roomAddress: string;
     color: string;
-    
+
     @IsOptional()
     image: string;
 
@@ -16,7 +15,7 @@ export class TreeRoomDto {
         this.name = room.name;
         this.roomAddress = room.roomAddress;
         this.color = room.color;
-        if(room.image) {
+        if (room.image) {
             this.image = room.image;
         }
     }

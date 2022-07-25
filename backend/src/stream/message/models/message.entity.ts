@@ -27,7 +27,7 @@ export class MessageEntity {
     @ManyToOne(() => StreamEntity, (stream) => stream.messages)
     stream: Stream;
 
-    @OneToOne(() => StreamEntity, {cascade: true})
+    @OneToOne(() => StreamEntity, { cascade: true })
     @JoinColumn()
     comments: Stream;
 

@@ -7,19 +7,18 @@ import { SignupComponent } from './components/signup/signup.component';
 import { AboutComponent } from './components/about/about.component';
 import { JoinRoomComponent } from './components/join-room/join-room.component';
 import { JoinComponent } from './components/join/join.component';
+import { RoomCardComponent } from './components/room-card/room-card.component';
+import { BottomCardComponent } from './components/bottom-card/bottom-card.component';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import {MatInputModule} from '@angular/material/input'; 
-import {MatButtonModule} from '@angular/material/button';
-import { BottomCardComponent } from './components/bottom-card/bottom-card.component'; 
-import {MatChipsModule} from '@angular/material/chips';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import { RoomCardComponent } from './components/room-card/room-card.component';
-
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -45,8 +44,6 @@ import { RoomCardComponent } from './components/room-card/room-card.component';
     MatDividerModule,
     MatCheckboxModule,
   ],
-  providers: [
-    RoomCardComponent,
-  ],
+  providers: [RoomCardComponent],
 })
 export class JoinModule {}

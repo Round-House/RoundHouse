@@ -1,53 +1,118 @@
 <mat-card>
-    <mat-card-title>Sign Up</mat-card-title>
-    <div class="example-container">
+  <mat-card-title>Sign Up</mat-card-title>
+  <div class="example-container">
+    <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="fill">
+        <mat-label>Enter a username</mat-label>
+        <input
+          matInput
+          placeholder="MrRound"
+          formControlName="username"
+          required
+        />
+        <mat-error *ngIf="signUpForm.get('username')?.hasError('required')"
+          >Username is required</mat-error
+        >
+        <mat-error
+          *ngIf="signUpForm.get('username')?.hasError('usernameTooShort')"
+          >Username must be at least 3 characters long</mat-error
+        >
+        <mat-error
+          *ngIf="signUpForm.get('username')?.hasError('usernameTooLong')"
+          >Username must be at most 30 caracters long</mat-error
+        >
+        <mat-error
+          *ngIf="signUpForm.get('username')?.hasError('containsAtSign')"
+          >Username cannot contain an @ symbol</mat-error
+        >
+        <mat-error *ngIf="signUpForm.get('username')?.hasError('startsWithRH')"
+          >Username cannot start with 'rh.'</mat-error
+        >
+        <mat-error *ngIf="signUpForm.get('username')?.hasError('usernameTaken')"
+          >Username is taken</mat-error
+        >
+      </mat-form-field>
 
-        <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="fill">
+        <mat-label>Enter your email</mat-label>
+        <input
+          matInput
+          placeholder="round@house.com"
+          formControlName="email"
+          required
+        />
+        <mat-error *ngIf="signUpForm.get('email')?.hasError('required')"
+          >Email is required</mat-error
+        >
+        <mat-error *ngIf="signUpForm.get('email')?.hasError('email')"
+          >Email is invalid</mat-error
+        >
+      </mat-form-field>
 
-            <mat-form-field appearance="fill">
-                <mat-label>Enter a username</mat-label>
-                <input matInput placeholder="MrRound" formControlName="username" required>
-                <mat-error *ngIf="signUpForm.get('username')?.hasError('required')">Username is required</mat-error>
-                <mat-error *ngIf="signUpForm.get('username')?.hasError('usernameTooShort')">Username must be at least 3 characters long</mat-error>
-                <mat-error *ngIf="signUpForm.get('username')?.hasError('usernameTooLong')">Username must be at most 30 caracters long</mat-error>
-                <mat-error *ngIf="signUpForm.get('username')?.hasError('containsAtSign')">Username cannot contain an @ symbol</mat-error>
-                <mat-error *ngIf="signUpForm.get('username')?.hasError('startsWithRH')">Username cannot start with 'rh.'</mat-error>
-                <mat-error *ngIf="signUpForm.get('username')?.hasError('usernameTaken')">Username is taken</mat-error>
-            </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Enter a password</mat-label>
+        <input
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          formControlName="password"
+          required
+        />
+        <mat-error *ngIf="signUpForm.get('password')?.hasError('required')"
+          >Password is required</mat-error
+        >
+        <mat-error *ngIf="signUpForm.get('password')?.hasError('minlength')"
+          >Password must be 8 or more characters</mat-error
+        >
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="hide = !hide"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hide"
+        >
+          <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+        </button>
+      </mat-form-field>
 
-            <mat-form-field appearance="fill">
-                <mat-label>Enter your email</mat-label>
-                <input matInput placeholder="round@house.com" formControlName="email" required>
-                <mat-error *ngIf="signUpForm.get('email')?.hasError('required')">Email is required</mat-error>
-                <mat-error *ngIf="signUpForm.get('email')?.hasError('email')">Email is invalid</mat-error>
-            </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Re-enter your password</mat-label>
+        <input
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          formControlName="passwordConfirm"
+          required
+        />
+        <mat-error
+          *ngIf="
+            signUpForm.get('passwordConfirm')?.hasError('passwordsNotMatching')
+          "
+          >Passwords do not match</mat-error
+        >
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="hide = !hide"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hide"
+        >
+          <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+        </button>
+      </mat-form-field>
 
-            <mat-form-field appearance="fill">
-                <mat-label>Enter a password</mat-label>
-                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password" required>
-                <mat-error *ngIf="signUpForm.get('password')?.hasError('required')">Password is required</mat-error>
-                <mat-error *ngIf="signUpForm.get('password')?.hasError('minlength')">Password must be 8 or more
-                    characters</mat-error>
-                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                    [attr.aria-pressed]="hide">
-                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                </button>
-            </mat-form-field>
+      <mat-checkbox formControlName="acceptTosAndRules"
+        >I agree to the
+        <a href="https://www.duckduckgo.com">Server Rules</a> and
+        <a href="https://www.google.com">Terms of Service</a>. *</mat-checkbox
+      >
 
-            <mat-form-field appearance="fill">
-                <mat-label>Re-enter your password</mat-label>
-                <input matInput [type]="hide ? 'password' : 'text'" formControlName="passwordConfirm" required>
-                <mat-error *ngIf="signUpForm.get('passwordConfirm')?.hasError('passwordsNotMatching')">Passwords do not match</mat-error>
-                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                    [attr.aria-pressed]="hide">
-                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                </button>
-            </mat-form-field>
-            
-            <mat-checkbox formControlName="acceptTosAndRules">I agree to the <a href="https://www.duckduckgo.com">Server
-                    Rules</a> and <a href="https://www.google.com">Terms of Service</a>. *</mat-checkbox>
-
-            <button mat-flat-button color="primary" [disabled]="!signUpForm.valid" type="submit">Sign Up</button>
-        </form>
-    </div>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="!signUpForm.valid"
+        type="submit"
+      >
+        Sign Up
+      </button>
+    </form>
+  </div>
 </mat-card>

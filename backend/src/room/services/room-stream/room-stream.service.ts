@@ -11,7 +11,7 @@ import { StreamEntity } from 'src/stream/models/stream.entity';
 import { Stream } from 'src/stream/models/stream.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
-import { Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import {
     Pagination,
     IPaginationOptions,
@@ -119,7 +119,12 @@ export class RoomStreamService {
         );
     }
 
-    getStream(roomAddress: string, user: any, options: IPaginationOptions): Observable<StreamDeliverableDto> {
+    getStream(
+        roomAddress: string,
+        user: any,
+        options: IPaginationOptions,
+        lastMessage: Date,
+    ): Observable<StreamDeliverableDto> {
         if (user.username === undefined) {
             throw Error(`Invalid username.`);
         }
@@ -158,17 +163,41 @@ export class RoomStreamService {
                                 }),
                             ).pipe(
                                 switchMap((stream: Stream) => {
-                                    const deliverable = new StreamDeliverableDto();
+                                    const deliverable =
+                                        new StreamDeliverableDto();
                                     deliverable.stream = stream;
 
-                                    return from(paginate<Message>(this.messageRepository, options, {
-                                        relations: ['account', 'comments'],
-                                        where: { stream },
-                                    }),).pipe(
-                                        map((messages: Pagination<Message, IPaginationMeta>) => {
-                                            deliverable.messages = messages;
-                                            return deliverable;
-                                        }),);
+                                    return from(
+                                        paginate<Message>(
+                                            this.messageRepository,
+                                            options,
+                                            {
+                                                relations: [
+                                                    'account',
+                                                    'comments',
+                                                ],
+                                                where: {
+                                                    stream,
+                                                    createdAt: LessThan(
+                                                        new Date(lastMessage),
+                                                    ),
+                                                },
+                                                order: { createdAt: 'DESC' },
+                                            },
+                                        ),
+                                    ).pipe(
+                                        map(
+                                            (
+                                                messages: Pagination<
+                                                    Message,
+                                                    IPaginationMeta
+                                                >,
+                                            ) => {
+                                                deliverable.messages = messages;
+                                                return deliverable;
+                                            },
+                                        ),
+                                    );
                                 }),
                                 catchError((err) => throwError(() => err)),
                             );

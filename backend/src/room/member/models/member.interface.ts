@@ -1,5 +1,5 @@
-import { Room } from "src/room/models/room.interface";
-import { User } from "src/user/models/user.interface";
+import { Room } from 'src/room/models/room.interface';
+import { User } from 'src/user/models/user.interface';
 
 export interface Member {
     id: number;
@@ -10,7 +10,7 @@ export interface Member {
 }
 
 export enum MemberRole {
-    OWNER = 'owner',  
+    OWNER = 'owner',
     MODERATOR = 'moderator',
-    USER = 'user'
+    USER = 'user',
 }

@@ -1,10 +1,11 @@
-.container, main {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    position: relative;
+.container,
+main {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  position: relative;
 }
 
 app-right-bar {
-    margin-left: auto;
+  margin-left: auto;
 }

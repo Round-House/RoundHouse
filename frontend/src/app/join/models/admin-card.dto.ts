@@ -1,5 +1,5 @@
 export class AdminCardDto {
-    username?: string;
-    nickname?: string;
-    image?: string;
+  username?: string;
+  nickname?: string;
+  image?: string;
 }

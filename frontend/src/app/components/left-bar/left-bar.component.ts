@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
 import { SidebarsService } from 'src/app/services/sidebars/sidebars.service';
 import { map } from 'rxjs';
 import { TreeRoomDto } from 'src/app/models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-left-bar',
@@ -10,22 +10,24 @@ import { TreeRoomDto } from 'src/app/models';
   styleUrls: ['./left-bar.component.scss'],
 })
 export class LeftBarComponent implements OnInit {
-  
   joinPage = false;
-
-  rooms: TreeRoomDto | undefined;
 
   userRooms: TreeRoomDto[] = [];
 
   constructor(
-    private location: Location,
-    private sidebarService: SidebarsService
+    private sidebarService: SidebarsService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.location.path() === '/join'
-      ? (this.joinPage = true)
-      : (this.joinPage = false);
+    this.router.events.subscribe((url: any) => {
+      if (url.url === '/join') {
+        this.joinPage = true;
+      } else if (url.url === undefined) {
+      } else {
+        this.joinPage = false;
+      }
+    });
 
     this.sidebarService
       .getUserTree()

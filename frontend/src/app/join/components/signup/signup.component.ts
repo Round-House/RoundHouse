@@ -46,7 +46,7 @@ export class SignupComponent implements OnInit {
       '',
       [this.userNameValidator.bind(this)],
       this.checkUsernameTaken.bind(this)
-      );
+    );
     this.passConfirmControl = this.formBuilder.control('', [
       this.passConfirmValidator.bind(this),
     ]);
@@ -59,9 +59,7 @@ export class SignupComponent implements OnInit {
     });
   }
 
-  userNameValidator({
-    value,
-  }: AbstractControl): ValidationErrors | null{
+  userNameValidator({ value }: AbstractControl): ValidationErrors | null {
     if (value.length < 3) {
       return { usernameTooShort: true };
     }
@@ -77,7 +75,9 @@ export class SignupComponent implements OnInit {
     return null;
   }
 
-  checkUsernameTaken(control: AbstractControl): Observable<ValidationErrors | null> {
+  checkUsernameTaken(
+    control: AbstractControl
+  ): Observable<ValidationErrors | null> {
     return this.joinService.checkUsernameTaken(control.value).pipe(
       map((nameExists: boolean) => {
         if (nameExists) {

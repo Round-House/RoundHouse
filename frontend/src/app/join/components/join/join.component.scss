@@ -1,46 +1,49 @@
 img {
-    height: 120px;
-    width: 120px;
-    padding-bottom: 20px;
+  height: 120px;
+  width: 120px;
+  padding-bottom: 20px;
 }
 
-app-signup, .middle, app-about, app-room-card {
-    margin: 8px;
+app-signup,
+.middle,
+app-about,
+app-room-card {
+  margin: 8px;
 }
 
 .container {
-    min-height: 100vh;
-    min-width: 100vw;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    background-color: #41345f;
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  background-color: #41345f;
 }
 
 .left-side {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .forms {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .middle {
-    margin-top: auto;
-    position: relative;
-    bottom: 0px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  margin-top: auto;
+  position: relative;
+  bottom: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

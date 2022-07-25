@@ -8,9 +8,8 @@ describe('RightBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RightBarComponent ]
-    })
-    .compileComponents();
+      declarations: [RightBarComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

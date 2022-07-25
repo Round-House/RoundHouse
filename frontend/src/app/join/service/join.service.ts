@@ -9,7 +9,6 @@ export const JWT_NAME = 'local-token';
   providedIn: 'root',
 })
 export class JoinService {
-
   isJoiningRoom$: Observable<string | undefined>;
   private isJoiningRoomSubject = new Subject<any>();
 
@@ -18,7 +17,9 @@ export class JoinService {
   }
 
   checkUsernameTaken(username: string) {
-    return this.http.get<any>('/api/users/checkUsernameTaken?username=' + username);
+    return this.http.get<any>(
+      '/api/users/checkUsernameTaken?username=' + username
+    );
   }
 
   isJoiningRoom(joining: string | undefined) {
@@ -26,7 +27,7 @@ export class JoinService {
   }
 
   joinRoom(roomAddress: string | undefined) {
-    return this.http.post('/api/rooms/join?roomAddress=' + roomAddress, {} );
+    return this.http.post('/api/rooms/join?roomAddress=' + roomAddress, {});
   }
 
   getRoom(roomAddress: string) {

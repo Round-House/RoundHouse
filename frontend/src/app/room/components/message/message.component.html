@@ -1,0 +1,13 @@
+<div class="container" [ngStyle]="{ 'background-color': background }">
+  <div
+    *ngIf="!repeatAuthor"
+    class="color"
+    [ngStyle]="{ 'background-color': color }"
+  ></div>
+  <div class="text">
+    <p class="username" *ngIf="!repeatAuthor">{{ account }}</p>
+    <p [ngClass]="[repeatAuthor ? 'repeat-author-message' : 'message']">
+      {{ message }}
+    </p>
+  </div>
+</div>

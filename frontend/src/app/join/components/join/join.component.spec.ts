@@ -8,9 +8,8 @@ describe('JoinComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ JoinComponent ]
-    })
-    .compileComponents();
+      declarations: [JoinComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

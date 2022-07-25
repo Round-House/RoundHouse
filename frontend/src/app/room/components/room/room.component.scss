@@ -1,12 +1,27 @@
-.container,
-main {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    background-color: #505050;
+app-left-room-bar {
+  height: 100%;
+}
+
+.container {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  background-color: #3a3a3a;
+}
+.inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
 }
 
 p {
-    color: #fff
+  color: #fff;
+}
+
+app-message {
+  min-height: 10%;
+  width: 100%;
+  display: flex;
+  overflow: overlay;
 }

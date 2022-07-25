@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { map } from 'rxjs';
-import { RoomService } from '../../service/room.service';
-import { RoomDto } from '../models/room.dto';
+import { RoomService } from '../../services/room/room.service';
+import { RoomDto } from '../../models/room.dto';
 
 @Component({
   selector: 'app-left-room-bar',
@@ -21,7 +21,7 @@ export class LeftRoomBarComponent implements OnInit {
 
   currentRoom: string | undefined;
 
-  param: any;
+  param: string | null = this.route.snapshot.queryParamMap.get('hub');
 
   constructor(
     private route: ActivatedRoute,
@@ -55,11 +55,9 @@ export class LeftRoomBarComponent implements OnInit {
     this.currentRoom = address;
     const queryParams: Params = { address: address };
 
-  this.router.navigate(
-    [], 
-    {
+    this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: queryParams, 
+      queryParams: queryParams,
       queryParamsHandling: 'merge', // remove to replace all query params by provided
     });
   }
