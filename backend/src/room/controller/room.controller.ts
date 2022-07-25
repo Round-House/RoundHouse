@@ -166,14 +166,23 @@ export class RoomController {
         @Query('roomAddress') roomAddress: string,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
+        @Query('prev') prevTimestamp: number,
         @Request() req: any,
     ): Observable<StreamDeliverableDto | Object> {
+        var myDate = new Date();
+        myDate.setTime(prevTimestamp);
         return this.roomStreamService
-            .getStream(roomAddress, req.user.user, {
-                limit: Number(limit),
-                page: Number(page),
-                route: ROOM_ENTRIES_URL + '/stream?roomAddress=' + roomAddress,
-            })
+            .getStream(
+                roomAddress,
+                req.user.user,
+                {
+                    limit: Number(limit),
+                    page: Number(page),
+                    route:
+                        ROOM_ENTRIES_URL + '/stream?roomAddress=' + roomAddress,
+                },
+                myDate,
+            )
             .pipe(
                 map((stream: StreamDeliverableDto) => {
                     return stream;

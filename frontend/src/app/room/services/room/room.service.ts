@@ -19,9 +19,11 @@ export class RoomService {
       .subscribe();
   }
 
-  getMessages(address: string, page: number) {
+  getMessages(address: string, prevTimestamp: number) {
     return this.http
-      .get('/api/rooms/stream?roomAddress=' + address + '&page=' + page)
+      .get(
+        '/api/rooms/stream?roomAddress=' + address + '&prev=' + prevTimestamp
+      )
       .pipe(map((response) => response));
   }
 }

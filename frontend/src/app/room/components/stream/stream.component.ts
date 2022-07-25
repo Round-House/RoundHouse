@@ -10,8 +10,6 @@ import { InfiniteScrollingService } from '../../services/infiniteScrolling/infin
   styleUrls: ['./stream.component.scss'],
 })
 export class StreamComponent implements OnInit, AfterViewChecked {
-  page = 1;
-
   currentRoom: string | null = this.route.snapshot.queryParamMap.get('address');
 
   messages: any[] = [];
@@ -38,7 +36,6 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     // Reset variables on room change
     this.messages = [];
     this.nextAuthor = null;
-    this.page = 1;
     this.moreMessages = true;
     this.scrollToBottom = true;
     this.whiteSpaceHeight = 0;
@@ -48,14 +45,13 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     this.username = jwt.user.username;
 
     // Go through first page of messages in the room and add them to the stream
-    this.getMessageData(this.page);
+    this.getMessageData();
 
     // Then, if at the top of the stream, check for more messages
     this.infiniteScrollingService.getObservable().subscribe((status) => {
       if (status && !this.gettingMessages) {
-        this.page = this.page + 1;
         this.nextAuthor = null;
-        this.getMessageData(this.page);
+        this.getMessageData();
       }
     });
 
@@ -69,14 +65,22 @@ export class StreamComponent implements OnInit, AfterViewChecked {
   }
 
   // Get the messages from the room
-  private getMessageData(page: number) {
+  private getMessageData() {
     // Helps load one page of messages at a time
     this.gettingMessages = true;
+
+    // Get the messages created directly before the last message
+    var lastTimestamp: Date = this.messages[0]
+      ? new Date(Date.parse(this.messages[0].createdAt))
+      : new Date(Math.round(Number.MAX_SAFE_INTEGER / 1000));
 
     // Don't hit the server if there are no more messages
     if (this.moreMessages) {
       this.roomService
-        .getMessages(this.route.snapshot.queryParams['address'], page)
+        .getMessages(
+          this.route.snapshot.queryParams['address'],
+          lastTimestamp.getTime()
+        )
         .subscribe((response: any) => {
           // If there are no more messages, set the flag to false and return
           if (response.messages.items.length == 0) {
@@ -92,8 +96,6 @@ export class StreamComponent implements OnInit, AfterViewChecked {
             message.nextAuthor = this.nextAuthor;
             this.nextAuthor = message.account.username;
           });
-
-          console.log(messages);
 
           this.messages = messages.concat(this.messages);
 

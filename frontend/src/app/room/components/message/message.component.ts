@@ -11,6 +11,7 @@ export class MessageComponent implements OnInit {
   @Input() color: String = '';
   @Input() viewer: String = '';
   @Input() nextAuthor: String = '';
+  @Input() createdAt: string = '0';
 
   background: String = '';
   repeatAuthor: boolean = false;
