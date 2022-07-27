@@ -1,0 +1,4 @@
+# Ignore Redis folder created by docker-compose
+/redis
+
+.env

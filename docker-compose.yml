@@ -8,13 +8,14 @@ services:
 
       # Only build development stage from Dockerfile, change to "production" for production version
       target: development
-    
+
     depends_on:
       - postgres
+      - redis
     ports:
       - "3000:3000"
       - "9229:9229"
-    env_file: backend/.env
+    env_file: .env
 
     # Mount host dir to the docker container
     # Mount api directory (./api) to (:) docker container (/usr/src/app)
@@ -23,10 +24,10 @@ services:
       - ./backend:/usr/src/app
       # - /usr/src/app/node_modules/
 
-    # Use "npm run start:debug" for dev with debug, 
-    # or "npm run start" for production 
+    # Use "npm run start:debug" for dev with debug,
+    # or "npm run start" for production
     command: npm run start:debug
-  
+
   # Angular Frontend
   client:
     build:
@@ -42,10 +43,19 @@ services:
     links:
       - api
 
+  # Redis Cache
+  redis:
+    image: redis:7.0-alpine
+    restart: always
+    command:
+      - /bin/sh
+      - -c
+      - redis-server
+    volumes:
+      - ./redis:/data
+    env_file: .env
 
   # Postgres Database
-  postgres: 
+  postgres:
     image: postgres:14.3
-    ports:
-      - "5432:5432"
-    env_file: backend/.env
+    env_file: .env
