@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -9,9 +9,17 @@ import { StreamModule } from './stream/stream.module';
 import { RoomModule } from './room/room.module';
 import { MessageModule } from './stream/message/message.module';
 import { MemberModule } from './room/member/member.module';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
     imports: [
+        CacheModule.register({
+            store: redisStore,
+            socket: {
+                host: process.env.REDIS_HOST,
+                port: process.env.REDIS_PORT,
+            },
+        }),
         ConfigModule.forRoot({
             isGlobal: true,
             envFilePath: `./../.env`,
