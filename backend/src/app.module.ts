@@ -15,10 +15,8 @@ import * as redisStore from 'cache-manager-redis-store';
     imports: [
         CacheModule.register({
             store: redisStore,
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: process.env.REDIS_PORT,
-            },
+            host: process.env.REDIS_HOST,
+            port: process.env.REDIS_PORT,
         }),
         ConfigModule.forRoot({
             isGlobal: true,
