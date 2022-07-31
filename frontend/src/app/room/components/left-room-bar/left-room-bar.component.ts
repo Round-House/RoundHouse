@@ -5,6 +5,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { RoomService } from '../../services/room/room.service';
 import { RoomDto } from '../../models/room.dto';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-left-room-bar',
@@ -19,6 +20,8 @@ export class LeftRoomBarComponent implements OnInit {
 
   rootRoomAddress: string | undefined;
 
+  rootRoomName: string | undefined;
+
   currentRoom: string | undefined;
 
   param: string | null = this.route.snapshot.queryParamMap.get('hub');
@@ -26,7 +29,8 @@ export class LeftRoomBarComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private roomService: RoomService,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   ngOnInit(): void {
@@ -34,12 +38,14 @@ export class LeftRoomBarComponent implements OnInit {
       .getRoomTree(this.route.snapshot.queryParams['hub'])
       .pipe(
         map((rooms: RoomDto) => {
+          this.rootRoomName = rooms.name;
           this.rootRoomAddress = rooms.roomAddress;
           this.currentRoom = rooms.roomAddress;
           if (rooms.childRooms) {
             this.roomTree = rooms.childRooms;
             this.dataSource.data = this.roomTree;
           }
+          this.titleService.setTitle(rooms.name!!);
         })
       )
       .subscribe();

@@ -66,8 +66,9 @@ export class SignupComponent implements OnInit {
     if (value.length > 30) {
       return { usernameTooLong: true };
     }
-    if (value.includes('@')) {
-      return { containsAtSign: true };
+    const handleCheck = /^[a-zA-Z0-9_\-]+$/g;
+    if (!handleCheck.test(value)) {
+      return { nonAlphanumeric: true };
     }
     if (value.startsWith('rh.')) {
       return { startsWithRH: true };

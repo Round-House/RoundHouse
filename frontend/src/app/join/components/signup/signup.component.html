@@ -22,8 +22,8 @@
           >Username must be at most 30 caracters long</mat-error
         >
         <mat-error
-          *ngIf="signUpForm.get('username')?.hasError('containsAtSign')"
-          >Username cannot contain an @ symbol</mat-error
+          *ngIf="signUpForm.get('username')?.hasError('nonAlphanumeric')"
+          >Username must be alphanumeric</mat-error
         >
         <mat-error *ngIf="signUpForm.get('username')?.hasError('startsWithRH')"
           >Username cannot start with 'rh.'</mat-error

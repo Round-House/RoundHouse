@@ -33,30 +33,45 @@ export class AuthService {
                 if (user.username.includes('@')) {
                     throw Error('Username cannot contain an @ symbol');
                 }
-                if (user.username.startsWith('rh.')) {
-                    throw Error("Username cannot start with 'rh.'");
+                const usernameCheck = /^[a-zA-Z0-9_\-]+$/g;
+                if (!usernameCheck.test(user.username)) {
+                    throw Error('Username must be alphanumeric');
                 }
-
-                const newUser = new UserEntity();
-                newUser.auth = new UserAuthEntity();
-                newUser.auth.email = user.email;
-                newUser.username = user.username;
-                newUser.nickname = user.nickname;
-                newUser.auth.passwordHash = passwordHash;
-                newUser.stream = new StreamEntity();
-
-                return from(this.userRepository.count({})).pipe(
-                    switchMap((count: number) => {
-                        if (count === 0) {
-                            newUser.role = UserRole.ADMIN;
+                return from(
+                    this.userRepository.findOne({
+                        where: { username: user.username },
+                    }),
+                ).pipe(
+                    switchMap((usernameMatch: User) => {
+                        if (usernameMatch) {
+                            throw Error('Username is already in use');
                         }
-                        return from(this.userRepository.save(newUser)).pipe(
-                            map((user: User) => {
-                                const responce = new UserJwtDto();
-                                responce.email = user.auth.email;
-                                responce.username = user.username;
 
-                                return responce;
+                        const newUser = new UserEntity();
+                        newUser.auth = new UserAuthEntity();
+                        newUser.auth.email = user.email;
+                        newUser.username = user.username;
+                        newUser.nickname = user.nickname;
+                        newUser.auth.passwordHash = passwordHash;
+                        newUser.stream = new StreamEntity();
+
+                        return from(this.userRepository.count({})).pipe(
+                            switchMap((count: number) => {
+                                if (count === 0) {
+                                    newUser.role = UserRole.ADMIN;
+                                }
+                                return from(
+                                    this.userRepository.save(newUser),
+                                ).pipe(
+                                    map((user: User) => {
+                                        const responce = new UserJwtDto();
+                                        responce.email = user.auth.email;
+                                        responce.username = user.username;
+
+                                        return responce;
+                                    }),
+                                    catchError((err) => throwError(() => err)),
+                                );
                             }),
                             catchError((err) => throwError(() => err)),
                         );
@@ -64,7 +79,6 @@ export class AuthService {
                     catchError((err) => throwError(() => err)),
                 );
             }),
-            catchError((err) => throwError(() => err)),
         );
     }
 

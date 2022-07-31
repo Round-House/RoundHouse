@@ -35,8 +35,8 @@ export class RoomCrudService {
                 },
             }),
         ).pipe(
-            map((room) => {
-                return room as Room;
+            map((room: Room) => {
+                return room;
             }),
         );
     }
@@ -54,6 +54,7 @@ export class RoomCrudService {
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
         newRoom.stream = new StreamEntity();
+        newRoom.handle = roomDto.name.replace(/ /g, '-').toLowerCase();
 
         if (roomDto.parentRoomAddress === undefined) {
             roomDto.parentRoomAddress = '';
@@ -65,18 +66,16 @@ export class RoomCrudService {
             }),
         ).pipe(
             switchMap((parent: Room) => {
-                if (newRoom.name.includes('.')) {
-                    throw Error('Room name cannot contain a dot');
-                }
-                if (newRoom.name.includes('@')) {
-                    throw Error('Room name cannot contain an @');
+                const handleCheck = /^[a-z0-9\-]+$/g;
+                if (!handleCheck.test(newRoom.handle)) {
+                    throw Error('Room handle must be alphanumeric');
                 }
                 if (roomDto.parentRoomAddress && !parent) {
                     throw Error('Cannot find parent room.');
                 }
                 newRoom.parentRoom = parent;
                 newRoom.roomAddress =
-                    (parent ? parent.roomAddress + '.' : '') + roomDto.name;
+                    (parent ? parent.roomAddress + '.' : '') + newRoom.handle;
 
                 return from(
                     this.userRepository.findOneOrFail({

@@ -47,6 +47,9 @@ export class RoomEntity {
     @Column()
     roomAddress: string;
 
+    @Column()
+    handle: string;
+
     @TreeParent()
     parentRoom: Relation<Room>;
 
