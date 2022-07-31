@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
 import { RoomEntity } from 'src/room/models/room.entity';
@@ -11,16 +11,30 @@ import { StreamEntity } from 'src/stream/models/stream.entity';
 import { Stream } from 'src/stream/models/stream.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { User } from 'src/user/models/user.interface';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import {
     Pagination,
     IPaginationOptions,
     paginate,
     IPaginationMeta,
 } from 'nestjs-typeorm-paginate';
+import { Cache, Store } from 'cache-manager';
+import * as Redis from 'redis';
+
+interface RedisCache extends Cache {
+    store: RedisStore;
+}
+
+interface RedisStore extends Store {
+    name: 'redis';
+    getClient: () => Redis.RedisClient;
+    isCacheableValue: (value: any) => boolean;
+}
 
 @Injectable()
 export class RoomStreamService {
+    cache: Redis.RedisClient;
+
     constructor(
         @InjectRepository(RoomEntity)
         private readonly roomRepository: Repository<RoomEntity>,
@@ -30,7 +44,10 @@ export class RoomStreamService {
         private readonly streamRepository: Repository<StreamEntity>,
         @InjectRepository(MessageEntity)
         private readonly messageRepository: Repository<MessageEntity>,
-    ) {}
+        @Inject(CACHE_MANAGER) private readonly cacheManager: RedisCache,
+    ) {
+        this.cache = cacheManager.store.getClient();
+    }
 
     createMessage(
         roomAddress: string,
@@ -74,6 +91,7 @@ export class RoomStreamService {
                             newMessage.comments = new StreamEntity();
                             newMessage.account = user;
 
+                            //TODO: Split function and add redis
                             return from(
                                 this.streamRepository.findOneOrFail({
                                     where: { id: room.stream.id },
@@ -157,6 +175,7 @@ export class RoomStreamService {
                                 ),
                             )
                         ) {
+                            //TODO: Split function and add redis
                             return from(
                                 this.streamRepository.findOneOrFail({
                                     where: { id: room.stream.id },
