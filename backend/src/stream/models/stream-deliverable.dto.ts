@@ -1,6 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
 import { Message } from '../message/models/message.interface';
-import { Pagination, IPaginationMeta } from 'nestjs-typeorm-paginate';
 import { Stream } from './stream.interface';
 
 export class StreamDeliverableDto {
@@ -8,5 +7,5 @@ export class StreamDeliverableDto {
     stream: Stream;
 
     @IsNotEmpty()
-    messages: Pagination<Message, IPaginationMeta>;
+    messages: Message[];
 }

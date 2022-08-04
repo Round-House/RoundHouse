@@ -11,6 +11,7 @@ import { RoomMembershipService } from './services/room-membership/room-membershi
 import { RoomStreamService } from './services/room-stream/room-stream.service';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { StreamEntity } from 'src/stream/models/stream.entity';
         ]),
         StreamModule,
         MemberModule,
+        UserModule,
     ],
     controllers: [RoomController],
     providers: [RoomCrudService, RoomMembershipService, RoomStreamService],

@@ -6,10 +6,9 @@ import {
     UseGuards,
     Request,
     Query,
+    UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { catchError, map, Observable, of } from 'rxjs';
-import { CreateMessageDto } from 'src/stream/message/models';
 import { Message } from 'src/stream/message/models/message.interface';
 import { User } from 'src/user/models/user.interface';
 import { Member } from '../member/models/member.interface';
@@ -21,6 +20,12 @@ import { RoomStreamService } from '../services/room-stream/room-stream.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { StreamDeliverableDto } from 'src/stream/models';
 import { TreeRoomDto } from '../models';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { FindUserInterceptor } from 'src/user/interceptors/find-user.interceptor';
+import { Stream } from 'src/stream/models/stream.interface';
+import { GetRoomInterceptor } from '../interceptors/get-room.interceptor';
+import { GetRoomStreamInterceptor } from '../interceptors/get-room-stream.interceptor';
+import { SetStreamMessageParamInterceptor } from '../interceptors/set-stream-msg-param.interceptor';
 
 export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/rooms';
 @Controller('rooms')
@@ -35,7 +40,7 @@ export class RoomController {
     getRoom(
         @Query('roomAddress') roomAddress: string,
     ): Observable<Room | Object> {
-        return this.roomCrudService.getRoom(roomAddress);
+        return this.roomCrudService.getRoom(roomAddress, []);
     }
 
     @Get()
@@ -66,7 +71,7 @@ export class RoomController {
     }
 
     @Get('/rootRooms')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     getRootRooms(@Request() req: any): Observable<TreeRoomDto[]> {
         return this.roomMembershipService.getRootRooms(req.user.user.username);
     }
@@ -82,7 +87,7 @@ export class RoomController {
     }
 
     @Get('/usersSubRooms')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     getUsersSubRooms(
         @Request() req: any,
         @Query('roomAddress') address: string,
@@ -98,7 +103,7 @@ export class RoomController {
     }
 
     @Post('/create')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     createRoom(
         @Body() room: CreateRoomDto,
         @Request() req: any,
@@ -112,7 +117,7 @@ export class RoomController {
     }
 
     @Post('/join')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     joinRoom(
         @Query('roomAddress') roomAddress: string,
         @Request() req: any,
@@ -128,7 +133,7 @@ export class RoomController {
     }
 
     @Post('/leave')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     leaveRoom(
         @Query('roomAddress') roomAddress: string,
         @Request() req: any,
@@ -144,14 +149,21 @@ export class RoomController {
     }
 
     @Post('/stream')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(
+        FindUserInterceptor,
+        GetRoomInterceptor,
+        SetStreamMessageParamInterceptor,
+        GetRoomStreamInterceptor,
+    )
     createMessage(
-        @Query('roomAddress') roomAddress: string,
-        @Body() message: CreateMessageDto,
-        @Request() req: any,
+        @Body('text') message: string,
+        @Body('room') room: Room,
+        @Body('stream') stream: Stream,
+        @Body('user') user: User,
     ): Observable<Message | Object> {
         return this.roomStreamService
-            .createMessage(roomAddress, message, req.user.user)
+            .createMessage(room, stream, user, message)
             .pipe(
                 map((newMessage: Message) => {
                     return newMessage;
@@ -161,25 +173,33 @@ export class RoomController {
     }
 
     @Get('/stream')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(
+        FindUserInterceptor,
+        GetRoomInterceptor,
+        GetRoomStreamInterceptor,
+    )
+    // GetRoomStreamInterceptor Implies @Query('roomAddress') roomAddress: string,
     getStream(
-        @Query('roomAddress') roomAddress: string,
+        @Body('room') room: Room,
+        @Body('stream') stream: Stream,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('prev') prevTimestamp: number,
-        @Request() req: any,
     ): Observable<StreamDeliverableDto | Object> {
         var myDate = new Date();
         myDate.setTime(prevTimestamp);
         return this.roomStreamService
-            .getStream(
-                roomAddress,
-                req.user.user,
+            .readStream(
+                room,
+                stream,
                 {
                     limit: Number(limit),
                     page: Number(page),
                     route:
-                        ROOM_ENTRIES_URL + '/stream?roomAddress=' + roomAddress,
+                        ROOM_ENTRIES_URL +
+                        '/stream?roomAddress=' +
+                        room.roomAddress,
                 },
                 myDate,
             )

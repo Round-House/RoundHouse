@@ -27,12 +27,13 @@ export class RoomCrudService {
         private roomMembershipService: RoomMembershipService,
     ) {}
 
-    getRoom(roomAddress: string): Observable<Room> {
+    getRoom(roomAddress: string, relations: string[]): Observable<Room> {
         return from(
             this.roomRepository.findOne({
                 where: {
                     roomAddress,
                 },
+                relations: relations,
             }),
         ).pipe(
             map((room: Room) => {

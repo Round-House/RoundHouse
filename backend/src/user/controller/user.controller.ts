@@ -7,15 +7,13 @@ import {
     Request,
     Query,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { catchError, from, map, Observable, of } from 'rxjs';
-import { CreateMessageDto } from 'src/stream/message/models';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Message } from 'src/stream/message/models/message.interface';
-import { Stream } from 'src/stream/models/stream.interface';
 import { User } from '../models/user.interface';
 import { UserService } from '../service/user.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { StreamDeliverableDto } from 'src/stream/models';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/users';
 @Controller('users')
@@ -69,9 +67,9 @@ export class UserController {
     }
 
     @Post('/stream/write')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     writeToStream(
-        @Body() message: CreateMessageDto,
+        @Body('text') message: string,
         @Request() req: any,
     ): Observable<Message | any> {
         return this.userService.writeToStream(message, req.user.user).pipe(

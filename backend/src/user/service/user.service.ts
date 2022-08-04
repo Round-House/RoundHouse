@@ -4,7 +4,6 @@ import { UserEntity } from '../models/user.entity';
 import { Repository } from 'typeorm';
 import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
 import { User, UserRole } from '../models/user.interface';
-import { CreateMessageDto } from 'src/stream/message/models';
 import { Message } from 'src/stream/message/models/message.interface';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
@@ -40,6 +39,15 @@ export class UserService {
                 ],
             }),
         ).pipe(map((users: Pagination<User>) => users));
+    }
+
+    // Ment to be used in find-user.guard.ts, will return first user if no username is provided
+    findOne(username: string): Observable<User> {
+        return from(this.userRepository.findOne({ where: { username } })).pipe(
+            map((user: User) => {
+                return user;
+            }),
+        );
     }
 
     getAdmin(): Observable<User | any> {
@@ -91,7 +99,7 @@ export class UserService {
                     }),
                 ).pipe(
                     map((messages: Pagination<Message, IPaginationMeta>) => {
-                        deliverable.messages = messages;
+                        deliverable.messages = messages.items;
                         return deliverable;
                     }),
                 );
@@ -100,11 +108,11 @@ export class UserService {
     }
 
     writeToStream(
-        message: CreateMessageDto,
+        message: string,
         user: UserJwtDto,
     ): Observable<Message | any> {
         const newMessage = new MessageEntity();
-        newMessage.text = message.text;
+        newMessage.text = message;
         newMessage.comments = new StreamEntity();
 
         return from(

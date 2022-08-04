@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
-import { CreateMessageDto } from 'src/stream/message/models';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { Message } from 'src/stream/message/models/message.interface';
 import { StreamDeliverableDto } from 'src/stream/models';
@@ -49,187 +48,136 @@ export class RoomStreamService {
         this.cache = cacheManager.store.getClient();
     }
 
-    createMessage(
-        roomAddress: string,
-        message: CreateMessageDto,
-        user: any,
-    ): Observable<any> {
-        if (user.username === undefined) {
-            throw Error(`Invalid username.`);
-        }
+    getStream(id: number, relations: string[]): Observable<Stream> {
         return from(
-            this.userRepository.findOneOrFail({
-                where: { username: user.username },
+            this.streamRepository.findOneOrFail({
+                where: { id },
+                relations: relations,
             }),
         ).pipe(
-            switchMap((user: User) => {
-                if (roomAddress === undefined) {
-                    throw Error(`Invalid room address.`);
-                }
-                return from(
-                    this.roomRepository.findOneOrFail({
-                        where: { roomAddress },
-                        relations: [
-                            'memberships',
-                            'memberships.user',
-                            'stream',
-                        ],
-                    }),
-                ).pipe(
-                    switchMap((room: Room) => {
-                        if (
-                            room.memberships.includes(
-                                room.memberships.find(
-                                    (membership) =>
-                                        membership.user.username ===
-                                        user.username,
-                                ),
-                            )
-                        ) {
-                            const newMessage = new MessageEntity();
-                            newMessage.text = message.text;
-                            newMessage.comments = new StreamEntity();
-                            newMessage.account = user;
-
-                            //TODO: Split function and add redis
-                            return from(
-                                this.streamRepository.findOneOrFail({
-                                    where: { id: room.stream.id },
-                                    relations: {
-                                        messages: true,
-                                    },
-                                }),
-                            ).pipe(
-                                switchMap((stream: Stream) => {
-                                    return from(
-                                        this.messageRepository.save(newMessage),
-                                    ).pipe(
-                                        switchMap((message: Message) => {
-                                            stream.messages.push(message);
-
-                                            return from(
-                                                this.streamRepository.save(
-                                                    stream,
-                                                ),
-                                            ).pipe(
-                                                map(() => {
-                                                    return message;
-                                                }),
-                                                catchError((err) =>
-                                                    throwError(() => err),
-                                                ),
-                                            );
-                                        }),
-                                    );
-                                }),
-                                catchError((err) => throwError(() => err)),
-                            );
-                        } else {
-                            throw Error(
-                                `User ${user.username} is not in room ${room.roomAddress}.`,
-                            );
-                        }
-                    }),
-                    catchError((err) => throwError(() => err)),
-                );
+            map((stream: Stream) => {
+                return stream;
             }),
-            catchError((err) => throwError(() => err)),
         );
     }
 
-    getStream(
-        roomAddress: string,
-        user: any,
-        options: IPaginationOptions,
-        lastMessage: Date,
-    ): Observable<StreamDeliverableDto> {
-        if (user.username === undefined) {
-            throw Error(`Invalid username.`);
-        }
-        return from(
-            this.userRepository.findOneOrFail({
-                where: { username: user.username },
-            }),
-        ).pipe(
-            switchMap((user: User) => {
-                if (roomAddress === undefined) {
-                    throw Error(`Invalid room address.`);
-                }
-                return from(
-                    this.roomRepository.findOneOrFail({
-                        where: { roomAddress },
-                        relations: [
-                            'memberships',
-                            'memberships.user',
-                            'stream',
-                        ],
-                    }),
-                ).pipe(
-                    switchMap((room: Room) => {
-                        if (
-                            room.memberships.includes(
-                                room.memberships.find(
-                                    (membership) =>
-                                        membership.user.username ===
-                                        user.username,
-                                ),
-                            )
-                        ) {
-                            //TODO: Split function and add redis
-                            return from(
-                                this.streamRepository.findOneOrFail({
-                                    where: { id: room.stream.id },
-                                }),
-                            ).pipe(
-                                switchMap((stream: Stream) => {
-                                    const deliverable =
-                                        new StreamDeliverableDto();
-                                    deliverable.stream = stream;
+    createMessage(
+        room: Room,
+        stream: Stream,
+        user: User,
+        message: string,
+    ): Observable<Message> {
+        const newMessage = new MessageEntity();
+        newMessage.text = message;
+        newMessage.comments = new StreamEntity();
+        newMessage.account = user;
 
-                                    return from(
-                                        paginate<Message>(
-                                            this.messageRepository,
-                                            options,
-                                            {
-                                                relations: [
-                                                    'account',
-                                                    'comments',
-                                                ],
-                                                where: {
-                                                    stream,
-                                                    createdAt: LessThan(
-                                                        new Date(lastMessage),
-                                                    ),
-                                                },
-                                                order: { createdAt: 'DESC' },
-                                            },
-                                        ),
-                                    ).pipe(
-                                        map(
-                                            (
-                                                messages: Pagination<
-                                                    Message,
-                                                    IPaginationMeta
-                                                >,
-                                            ) => {
-                                                deliverable.messages = messages;
-                                                return deliverable;
-                                            },
-                                        ),
-                                    );
-                                }),
-                                catchError((err) => throwError(() => err)),
-                            );
-                        } else {
-                            throw Error(
-                                `User ${user.username} is not in room ${room.roomAddress}.`,
-                            );
-                        }
+        return from(this.messageRepository.save(newMessage)).pipe(
+            switchMap((message: Message) => {
+                stream.messages.push(message);
+
+                return from(this.streamRepository.save(stream)).pipe(
+                    map(() => {
+                        // Store message in cache of room address
+                        this.cache.lpush(
+                            'room:' + room.roomAddress + ':messages',
+                            JSON.stringify(message),
+                        );
+                        this.cache.ltrim(
+                            'room:' + room.roomAddress + ':messages',
+                            0,
+                            19,
+                        );
+                        this.cache.expire(
+                            'room:' + room.roomAddress + ':messages',
+                            1200,
+                        );
+
+                        return message;
                     }),
                     catchError((err) => throwError(() => err)),
                 );
             }),
-            catchError((err) => throwError(() => err)),
+        );
+    }
+
+    readStream(
+        room: Room,
+        stream: Stream,
+        options: IPaginationOptions,
+        lastMessage: Date,
+    ): Observable<any> {
+        {
+            const deliverable = new StreamDeliverableDto();
+            deliverable.stream = stream;
+
+            lastMessage.getTime() >= Date.now();
+
+            var hasCache: string;
+
+            this.cache.get(
+                'room:' + room.roomAddress + ':messages',
+                (error, cb) => {
+                    hasCache = cb;
+                },
+            );
+
+            if (hasCache) {
+                const cacheMessages = this.getMessageCache(room.roomAddress);
+                if (cacheMessages instanceof Error) {
+                    // Get messages from postgres instead
+                    throw cacheMessages;
+                }
+                //deliverable.messages =
+                cacheMessages;
+
+                console.log(deliverable);
+                //return deliverable;
+            } else {
+                //use private method to get messages from postgres
+                return this.getMessagePostgres(options, lastMessage, stream);
+            }
+        }
+    }
+
+    private getMessageCache(roomAddress: string): Message[] | Error {
+        this.cache.lrange(
+            'room:' + roomAddress + ':messages',
+            0,
+            19,
+            (error, cacheMessages) => {
+                if (error) {
+                    throw error;
+                }
+                return cacheMessages.map((message) => {
+                    const messageObject: Message[] = JSON.parse(message);
+                    return messageObject;
+                });
+            },
+        );
+        return new Error('Cache not found.');
+    }
+
+    private getMessagePostgres(
+        options: IPaginationOptions,
+        lastMessage: Date,
+        stream: Stream,
+    ): Observable<Message[]> {
+        return from(
+            paginate<Message>(this.messageRepository, options, {
+                relations: ['account', 'comments'],
+                where: {
+                    stream,
+                    createdAt: LessThan(new Date(lastMessage)),
+                },
+                order: {
+                    createdAt: 'DESC',
+                },
+            }),
+        ).pipe(
+            map((messages: Pagination<Message, IPaginationMeta>) => {
+                return messages.items;
+            }),
         );
     }
 }
