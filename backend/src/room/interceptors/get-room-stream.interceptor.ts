@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Stream } from 'src/stream/models/stream.interface';
-import { Room } from '../models/room.interface';
+import { StreamEntity } from 'src/stream/models/stream.entity';
+import { RoomEntity } from '../models/room.entity';
 import { RoomStreamService } from '../services/room-stream/room-stream.service';
 
 @Injectable()
@@ -17,14 +17,14 @@ export class GetRoomStreamInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();
         const streamParams: string[] = request.body.streamParams;
-        const room: Room = request.body.room;
+        const room: RoomEntity = request.body.room;
 
         delete request.body.stream;
 
         return this.roomStreamService
             .getStream(room.stream.id, streamParams)
             .pipe(
-                switchMap((stream: Stream) => {
+                switchMap((stream: StreamEntity) => {
                     if (stream.id === room.stream.id && room.stream.id) {
                         request.body.stream = stream;
                         return next.handle().pipe(

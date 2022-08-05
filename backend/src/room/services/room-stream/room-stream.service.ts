@@ -2,14 +2,12 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
 import { RoomEntity } from 'src/room/models/room.entity';
-import { Room } from 'src/room/models/room.interface';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { Message } from 'src/stream/message/models/message.interface';
 import { StreamDeliverableDto } from 'src/stream/models';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { Stream } from 'src/stream/models/stream.interface';
 import { UserEntity } from 'src/user/models/user.entity';
-import { User } from 'src/user/models/user.interface';
 import { LessThan, Repository } from 'typeorm';
 import {
     Pagination,
@@ -35,10 +33,6 @@ export class RoomStreamService {
     cache: Redis.RedisClient;
 
     constructor(
-        @InjectRepository(RoomEntity)
-        private readonly roomRepository: Repository<RoomEntity>,
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(StreamEntity)
         private readonly streamRepository: Repository<StreamEntity>,
         @InjectRepository(MessageEntity)
@@ -48,23 +42,23 @@ export class RoomStreamService {
         this.cache = cacheManager.store.getClient();
     }
 
-    getStream(id: number, relations: string[]): Observable<Stream> {
+    getStream(id: number, relations: string[]): Observable<StreamEntity> {
         return from(
             this.streamRepository.findOneOrFail({
                 where: { id },
                 relations: relations,
             }),
         ).pipe(
-            map((stream: Stream) => {
+            map((stream: StreamEntity) => {
                 return stream;
             }),
         );
     }
 
     createMessage(
-        room: Room,
-        stream: Stream,
-        user: User,
+        room: RoomEntity,
+        stream: StreamEntity,
+        user: UserEntity,
         message: string,
     ): Observable<Message> {
         const newMessage = new MessageEntity();
@@ -73,7 +67,7 @@ export class RoomStreamService {
         newMessage.account = user;
 
         return from(this.messageRepository.save(newMessage)).pipe(
-            switchMap((message: Message) => {
+            switchMap((message: MessageEntity) => {
                 stream.messages.push(message);
 
                 return from(this.streamRepository.save(stream)).pipe(
@@ -102,8 +96,8 @@ export class RoomStreamService {
     }
 
     readStream(
-        room: Room,
-        stream: Stream,
+        room: RoomEntity,
+        stream: StreamEntity,
         options: IPaginationOptions,
         lastMessage: Date,
     ): Observable<any> {
@@ -140,7 +134,7 @@ export class RoomStreamService {
         }
     }
 
-    private getMessageCache(roomAddress: string): Message[] | Error {
+    private getMessageCache(roomAddress: string): MessageEntity[] | Error {
         this.cache.lrange(
             'room:' + roomAddress + ':messages',
             0,
@@ -150,7 +144,7 @@ export class RoomStreamService {
                     throw error;
                 }
                 return cacheMessages.map((message) => {
-                    const messageObject: Message[] = JSON.parse(message);
+                    const messageObject: MessageEntity[] = JSON.parse(message);
                     return messageObject;
                 });
             },

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { User } from '../models/user.interface';
+import { UserEntity } from '../models/user.entity';
 import { UserService } from '../service/user.service';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class FindUserInterceptor implements NestInterceptor {
         const username = request.user.user.username;
 
         return this.userService.findOne(username).pipe(
-            switchMap((user: User) => {
+            switchMap((user: UserEntity) => {
                 if (user.username === username && username) {
                     request.body.user = user;
                     return next.handle().pipe(

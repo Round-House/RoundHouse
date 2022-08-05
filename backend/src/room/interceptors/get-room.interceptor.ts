@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { User } from 'src/user/models/user.interface';
-import { Room } from '../models/room.interface';
+import { UserEntity } from 'src/user/models/user.entity';
+import { RoomEntity } from '../models/room.entity';
 import { RoomCrudService } from '../services/room-crud/room-crud.service';
 
 @Injectable()
@@ -18,15 +18,15 @@ export class GetRoomInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();
         const roomAddress: string = request.query.roomAddress;
-        const user: User = request.body.user;
+        const user: UserEntity = request.body.user;
 
         delete request.body.room;
         delete request.body.member;
 
         return this.roomCrudService
-            .getRoom(roomAddress, ['memberships', 'memberships.user', 'stream'])
+            .getRoom(roomAddress, ['memberships', 'memberships.user'])
             .pipe(
-                switchMap((room: Room) => {
+                switchMap((room: RoomEntity) => {
                     if (room.roomAddress === roomAddress && roomAddress) {
                         const member = room.memberships.find(
                             (member) => member.user.username === user.username,

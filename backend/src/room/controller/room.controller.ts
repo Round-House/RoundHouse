@@ -4,16 +4,11 @@ import {
     Get,
     Post,
     UseGuards,
-    Request,
     Query,
     UseInterceptors,
 } from '@nestjs/common';
 import { catchError, map, Observable, of } from 'rxjs';
-import { Message } from 'src/stream/message/models/message.interface';
-import { User } from 'src/user/models/user.interface';
-import { Member } from '../member/models/member.interface';
 import { CreateRoomDto } from '../models/create-room.dto';
-import { Room } from '../models/room.interface';
 import { RoomCrudService } from '../services/room-crud/room-crud.service';
 import { RoomMembershipService } from '../services/room-membership/room-membership.service';
 import { RoomStreamService } from '../services/room-stream/room-stream.service';
@@ -22,10 +17,14 @@ import { StreamDeliverableDto } from 'src/stream/models';
 import { TreeRoomDto } from '../models';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FindUserInterceptor } from 'src/user/interceptors/find-user.interceptor';
-import { Stream } from 'src/stream/models/stream.interface';
 import { GetRoomInterceptor } from '../interceptors/get-room.interceptor';
 import { GetRoomStreamInterceptor } from '../interceptors/get-room-stream.interceptor';
 import { SetStreamMessageParamInterceptor } from '../interceptors/set-stream-msg-param.interceptor';
+import { MemberEntity } from '../member/models/member.entity';
+import { UserEntity } from 'src/user/models/user.entity';
+import { RoomEntity } from '../models/room.entity';
+import { StreamEntity } from 'src/stream/models/stream.entity';
+import { MessageEntity } from 'src/stream/message/models/message.entity';
 
 export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/rooms';
 @Controller('rooms')
@@ -39,7 +38,7 @@ export class RoomController {
     @Get('/get')
     getRoom(
         @Query('roomAddress') roomAddress: string,
-    ): Observable<Room | Object> {
+    ): Observable<RoomEntity | Object> {
         return this.roomCrudService.getRoom(roomAddress, []);
     }
 
@@ -47,7 +46,7 @@ export class RoomController {
     findAll(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
-    ): Observable<Pagination<Room>> {
+    ): Observable<Pagination<RoomEntity>> {
         limit = limit > 100 ? 100 : limit;
         return this.roomCrudService.findAll({
             limit: Number(limit),
@@ -59,10 +58,10 @@ export class RoomController {
     @Get('/members')
     @UseInterceptors(GetRoomInterceptor)
     membersInRoom(
-        @Body('room') room: Room,
+        @Body('room') room: RoomEntity,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
-    ): Observable<Pagination<Member>> {
+    ): Observable<Pagination<MemberEntity>> {
         limit = limit > 100 ? 100 : limit;
         return this.roomMembershipService.membersInRoom(room, {
             limit: Number(limit),
@@ -74,14 +73,18 @@ export class RoomController {
 
     @Get('/rootRooms')
     @UseGuards(JwtAuthGuard)
-    getRootRooms(@Request() req: any): Observable<TreeRoomDto[]> {
-        return this.roomMembershipService.getRootRooms(req.user.user.username);
+    @UseInterceptors(FindUserInterceptor)
+    getRootRooms(@Body('user') user: UserEntity): Observable<TreeRoomDto[]> {
+        return this.roomMembershipService.getRootRooms(user);
     }
 
     @Get('/subRooms')
-    getSubRooms(@Query('roomAddress') address: string): Observable<Room> {
-        return this.roomMembershipService.getSubRooms(address).pipe(
-            map((rooms: any) => {
+    @UseInterceptors(GetRoomInterceptor)
+    getSubRooms(
+        @Body('room') room: RoomEntity,
+    ): Observable<RoomEntity | Object> {
+        return this.roomMembershipService.getSubRooms(room).pipe(
+            map((rooms: RoomEntity) => {
                 return rooms;
             }),
             catchError((err) => of({ error: err.message })),
@@ -92,27 +95,26 @@ export class RoomController {
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     getUsersSubRooms(
-        @Request() req: any,
-        @Query('roomAddress') address: string,
-    ): Observable<TreeRoomDto[]> {
-        return this.roomMembershipService
-            .getUsersSubRooms(req.user.user.username, address)
-            .pipe(
-                map((rooms: any) => {
-                    return rooms;
-                }),
-                catchError((err) => of({ error: err.message })),
-            );
+        @Body('room') room: RoomEntity,
+        @Body('user') user: UserEntity,
+    ): Observable<TreeRoomDto[] | Object> {
+        return this.roomMembershipService.getUsersSubRooms(user, room).pipe(
+            map((rooms: TreeRoomDto[]) => {
+                return rooms;
+            }),
+            catchError((err) => of({ error: err.message })),
+        );
     }
 
     @Post('/create')
     @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     createRoom(
-        @Body() room: CreateRoomDto,
-        @Request() req: any,
-    ): Observable<Room | Object> {
-        return this.roomCrudService.createRoom(room, req.user.user).pipe(
-            map((newRoom: Room) => {
+        @Body('newRoom') newRoom: CreateRoomDto,
+        @Body('user') user: UserEntity,
+    ): Observable<RoomEntity | Object> {
+        return this.roomCrudService.createRoom(newRoom, user).pipe(
+            map((newRoom: RoomEntity) => {
                 return newRoom;
             }),
             catchError((err) => of({ error: err.message })),
@@ -123,13 +125,12 @@ export class RoomController {
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     joinRoom(
-        @Body('room') room: Room,
-        @Body('user') user: User,
-        @Body('member') member: Member,
-        @Request() req: any,
-    ): Observable<User | Object> {
+        @Body('room') room: RoomEntity,
+        @Body('user') user: UserEntity,
+        @Body('member') member: MemberEntity,
+    ): Observable<UserEntity | Object> {
         return this.roomMembershipService.joinRoom(room, user, member).pipe(
-            map((user: User) => {
+            map((user: UserEntity) => {
                 return user;
             }),
             catchError((err) => of({ error: err.message })),
@@ -140,11 +141,11 @@ export class RoomController {
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     leaveRoom(
-        @Body('room') room: Room,
-        @Body('membership') member: Member,
-    ): Observable<Room | Object> {
+        @Body('room') room: RoomEntity,
+        @Body('membership') member: MemberEntity,
+    ): Observable<RoomEntity | Object> {
         return this.roomMembershipService.leaveRoom(room, member).pipe(
-            map((newRoom: Room) => {
+            map((newRoom: RoomEntity) => {
                 return newRoom;
             }),
             catchError((err) => of({ error: err.message })),
@@ -161,14 +162,14 @@ export class RoomController {
     )
     createMessage(
         @Body('text') message: string,
-        @Body('room') room: Room,
-        @Body('stream') stream: Stream,
-        @Body('user') user: User,
-    ): Observable<Message | Object> {
+        @Body('room') room: RoomEntity,
+        @Body('stream') stream: StreamEntity,
+        @Body('user') user: UserEntity,
+    ): Observable<MessageEntity | Object> {
         return this.roomStreamService
             .createMessage(room, stream, user, message)
             .pipe(
-                map((newMessage: Message) => {
+                map((newMessage: MessageEntity) => {
                     return newMessage;
                 }),
                 catchError((err) => of({ error: err.message })),
@@ -184,8 +185,8 @@ export class RoomController {
     )
     // GetRoomStreamInterceptor Implies @Query('roomAddress') roomAddress: string,
     getStream(
-        @Body('room') room: Room,
-        @Body('stream') stream: Stream,
+        @Body('room') room: RoomEntity,
+        @Body('stream') stream: StreamEntity,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('prev') prevTimestamp: number,

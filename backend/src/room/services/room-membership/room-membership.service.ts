@@ -8,12 +8,11 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
 import { MemberEntity } from 'src/room/member/models/member.entity';
-import { Member, MemberRole } from 'src/room/member/models/member.interface';
+import { MemberRole } from 'src/room/member/models/member.interface';
 import { TreeRoomDto } from 'src/room/models';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { Room } from 'src/room/models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
-import { User } from 'src/user/models/user.interface';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -28,13 +27,13 @@ export class RoomMembershipService {
         private dataSource: DataSource,
     ) {}
 
-    getRootRooms(username: string): Observable<TreeRoomDto[]> {
+    getRootRooms(user: UserEntity): Observable<TreeRoomDto[]> {
         return from(
             this.roomRepository
                 .createQueryBuilder('room')
                 .leftJoin('room.memberships', 'membership')
                 .leftJoin('membership.user', 'user')
-                .where('user.username = :username', { username })
+                .where('user.username = :username', { username: user.username })
                 .andWhere('room.parentRoom is null')
                 .getMany(),
         ).pipe(
@@ -46,74 +45,48 @@ export class RoomMembershipService {
         );
     }
 
-    getSubRooms(roomAddress: string): Observable<Room> {
+    getSubRooms(room: RoomEntity): Observable<RoomEntity> {
         return from(
-            this.roomRepository.findOneOrFail({
-                where: {
-                    roomAddress,
-                },
-            }),
+            this.dataSource
+                .getTreeRepository(RoomEntity)
+                .findDescendantsTree(room),
         ).pipe(
-            switchMap((room: RoomEntity) => {
-                return from(
-                    this.dataSource
-                        .getTreeRepository(RoomEntity)
-                        .findDescendantsTree(room),
-                ).pipe(
-                    map((rooms: Room) => {
-                        return rooms;
-                    }),
-                    catchError((err) => throwError(() => err)),
-                );
+            map((rooms: RoomEntity) => {
+                return rooms;
             }),
             catchError((err) => throwError(() => err)),
         );
     }
 
     getUsersSubRooms(
-        username: string,
-        roomAddress: string,
+        user: UserEntity,
+        room: RoomEntity,
     ): Observable<TreeRoomDto[]> {
         return from(
-            this.roomRepository.findOneOrFail({
-                where: {
-                    roomAddress,
-                },
-            }),
+            this.dataSource.getTreeRepository(RoomEntity).findDescendants(room),
         ).pipe(
-            switchMap((room: RoomEntity) => {
+            switchMap((roomInTree: RoomEntity[]) => {
                 return from(
-                    this.dataSource
-                        .getTreeRepository(RoomEntity)
-                        .findDescendants(room),
+                    this.roomRepository
+                        .createQueryBuilder('room')
+                        .leftJoin('room.memberships', 'membership')
+                        .leftJoin('membership.user', 'user')
+                        .where('user.username = :username', {
+                            username: user.username,
+                        })
+                        .getMany(),
                 ).pipe(
-                    switchMap((roomInTree: Room[]) => {
-                        return from(
-                            this.roomRepository
-                                .createQueryBuilder('room')
-                                .leftJoin('room.memberships', 'membership')
-                                .leftJoin('membership.user', 'user')
-                                .where('user.username = :username', {
-                                    username,
-                                })
-                                .getMany(),
-                        ).pipe(
-                            map((userRooms: Room[]) => {
-                                const userRoomAddresses = userRooms.map(
-                                    (room) => room.roomAddress,
-                                );
-                                const tempRoomList = roomInTree.filter((room) =>
-                                    userRoomAddresses.includes(
-                                        room.roomAddress,
-                                    ),
-                                );
-                                const treeRoomList = tempRoomList.map(
-                                    (room) => new TreeRoomDto(room),
-                                );
-                                return treeRoomList;
-                            }),
-                            catchError((err) => throwError(() => err)),
+                    map((userRooms: RoomEntity[]) => {
+                        const userRoomAddresses = userRooms.map(
+                            (room) => room.roomAddress,
                         );
+                        const tempRoomList = roomInTree.filter((room) =>
+                            userRoomAddresses.includes(room.roomAddress),
+                        );
+                        const treeRoomList = tempRoomList.map(
+                            (room) => new TreeRoomDto(room),
+                        );
+                        return treeRoomList;
                     }),
                     catchError((err) => throwError(() => err)),
                 );
@@ -123,22 +96,26 @@ export class RoomMembershipService {
     }
 
     membersInRoom(
-        room: Room,
+        room: RoomEntity,
         options: IPaginationOptions,
-    ): Observable<Pagination<Member>> {
+    ): Observable<Pagination<MemberEntity>> {
         return from(
-            paginate<Member>(this.memberRepository, options, {
+            paginate<MemberEntity>(this.memberRepository, options, {
                 relations: ['user'],
                 where: { room: { id: room.id } },
             }),
         ).pipe(
-            map((members: Pagination<Member, IPaginationMeta>) => {
+            map((members: Pagination<MemberEntity, IPaginationMeta>) => {
                 return members;
             }),
         );
     }
 
-    joinRoom(room: Room, user: User, member?: Member): Observable<User> {
+    joinRoom(
+        room: RoomEntity,
+        user: UserEntity,
+        member?: MemberEntity,
+    ): Observable<UserEntity> {
         if (member) {
             throw Error(
                 `User ${user.username} is already in room ${room.roomAddress}.`,
@@ -164,11 +141,11 @@ export class RoomMembershipService {
         }
     }
 
-    leaveRoom(room: Room, member: Member): Observable<Room> {
+    leaveRoom(room: RoomEntity, member: MemberEntity): Observable<RoomEntity> {
         this.memberRepository.remove(member);
 
         return from(this.roomRepository.save(room)).pipe(
-            map((room: Room) => {
+            map((room: RoomEntity) => {
                 return room;
             }),
             catchError((err) => throwError(() => err)),

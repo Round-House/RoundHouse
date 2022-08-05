@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable, switchMap, map, catchError, throwError } from 'rxjs';
-import { MemberEntity } from 'src/room/member/models/member.entity';
-import { MemberRole } from 'src/room/member/models/member.interface';
 import { CreateRoomDto } from 'src/room/models';
 import { RoomEntity } from 'src/room/models/room.entity';
-import { Room } from 'src/room/models/room.interface';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserEntity } from 'src/user/models/user.entity';
-import { User } from 'src/user/models/user.interface';
 import {
     Pagination,
     IPaginationOptions,
@@ -27,7 +23,7 @@ export class RoomCrudService {
         private roomMembershipService: RoomMembershipService,
     ) {}
 
-    getRoom(roomAddress: string, relations: string[]): Observable<Room> {
+    getRoom(roomAddress: string, relations: string[]): Observable<RoomEntity> {
         return from(
             this.roomRepository.findOne({
                 where: {
@@ -36,21 +32,24 @@ export class RoomCrudService {
                 relations: relations,
             }),
         ).pipe(
-            map((room: Room) => {
+            map((room: RoomEntity) => {
                 return room;
             }),
         );
     }
 
-    findAll(options: IPaginationOptions): Observable<Pagination<Room>> {
+    findAll(options: IPaginationOptions): Observable<Pagination<RoomEntity>> {
         return from(
-            paginate<Room>(this.roomRepository, options, {
+            paginate<RoomEntity>(this.roomRepository, options, {
                 relations: ['parentRoom', 'memberships', 'stream'],
             }),
-        ).pipe(map((rooms: Pagination<Room>) => rooms));
+        ).pipe(map((rooms: Pagination<RoomEntity>) => rooms));
     }
 
-    createRoom(roomDto: CreateRoomDto, user: any): Observable<Room> {
+    createRoom(
+        roomDto: CreateRoomDto,
+        user: UserEntity,
+    ): Observable<RoomEntity> {
         const newRoom = new RoomEntity();
         newRoom.name = roomDto.name;
         newRoom.description = roomDto.description;
@@ -66,7 +65,7 @@ export class RoomCrudService {
                 where: { roomAddress: roomDto.parentRoomAddress },
             }),
         ).pipe(
-            switchMap((parent: Room) => {
+            switchMap((parent: RoomEntity) => {
                 const handleCheck = /^[a-z0-9\-]+$/g;
                 if (!handleCheck.test(newRoom.handle)) {
                     throw Error('Room handle must be alphanumeric');
@@ -79,45 +78,32 @@ export class RoomCrudService {
                     (parent ? parent.roomAddress + '.' : '') + newRoom.handle;
 
                 return from(
-                    this.userRepository.findOneOrFail({
-                        where: { username: user.username },
+                    this.roomRepository.findOne({
+                        where: { roomAddress: newRoom.roomAddress },
                     }),
                 ).pipe(
-                    switchMap((owner: User) => {
-                        return from(
-                            this.roomRepository.findOne({
-                                where: { roomAddress: newRoom.roomAddress },
-                            }),
-                        ).pipe(
-                            switchMap((addressMatch: Room) => {
-                                if (addressMatch) {
-                                    throw Error(
-                                        `A room with the address ${newRoom.roomAddress} allready exists on the server.`,
-                                    );
-                                } else {
+                    switchMap((addressMatch: RoomEntity) => {
+                        if (addressMatch) {
+                            throw Error(
+                                `A room with the address ${newRoom.roomAddress} allready exists on the server.`,
+                            );
+                        } else {
+                            return from(this.roomRepository.save(newRoom)).pipe(
+                                switchMap((room: RoomEntity) => {
                                     return from(
-                                        this.roomRepository.save(newRoom),
-                                    ).pipe(
-                                        switchMap((room: Room) => {
-                                            return from(
-                                                this.roomMembershipService.joinRoom(
-                                                    room,
-                                                    user,
-                                                ),
-                                            ).pipe(
-                                                map(() => {
-                                                    return room;
-                                                }),
-                                            );
-                                        }),
-                                        catchError((err) =>
-                                            throwError(() => err),
+                                        this.roomMembershipService.joinRoom(
+                                            room,
+                                            user,
                                         ),
+                                    ).pipe(
+                                        map(() => {
+                                            return room;
+                                        }),
                                     );
-                                }
-                            }),
-                            catchError((err) => throwError(() => err)),
-                        );
+                                }),
+                                catchError((err) => throwError(() => err)),
+                            );
+                        }
                     }),
                     catchError((err) => throwError(() => err)),
                 );
