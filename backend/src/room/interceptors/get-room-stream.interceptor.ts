@@ -19,6 +19,8 @@ export class GetRoomStreamInterceptor implements NestInterceptor {
         const streamParams: string[] = request.body.streamParams;
         const room: Room = request.body.room;
 
+        delete request.body.stream;
+
         return this.roomStreamService
             .getStream(room.stream.id, streamParams)
             .pipe(

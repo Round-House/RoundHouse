@@ -57,16 +57,18 @@ export class RoomController {
     }
 
     @Get('/members')
+    @UseInterceptors(GetRoomInterceptor)
     membersInRoom(
-        @Query('roomAddress') roomAdress: string,
+        @Body('room') room: Room,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
     ): Observable<Pagination<Member>> {
         limit = limit > 100 ? 100 : limit;
-        return this.roomMembershipService.membersInRoom(roomAdress, {
+        return this.roomMembershipService.membersInRoom(room, {
             limit: Number(limit),
             page: Number(page),
-            route: ROOM_ENTRIES_URL + '/members?roomAddress=' + roomAdress,
+            route:
+                ROOM_ENTRIES_URL + '/members?roomAddress=' + room.roomAddress,
         });
     }
 
@@ -88,6 +90,7 @@ export class RoomController {
 
     @Get('/usersSubRooms')
     @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     getUsersSubRooms(
         @Request() req: any,
         @Query('roomAddress') address: string,
@@ -118,34 +121,34 @@ export class RoomController {
 
     @Post('/join')
     @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     joinRoom(
-        @Query('roomAddress') roomAddress: string,
+        @Body('room') room: Room,
+        @Body('user') user: User,
+        @Body('member') member: Member,
         @Request() req: any,
     ): Observable<User | Object> {
-        return this.roomMembershipService
-            .joinRoom(roomAddress, req.user.user)
-            .pipe(
-                map((user: User) => {
-                    return user;
-                }),
-                catchError((err) => of({ error: err.message })),
-            );
+        return this.roomMembershipService.joinRoom(room, user, member).pipe(
+            map((user: User) => {
+                return user;
+            }),
+            catchError((err) => of({ error: err.message })),
+        );
     }
 
     @Post('/leave')
     @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
     leaveRoom(
-        @Query('roomAddress') roomAddress: string,
-        @Request() req: any,
+        @Body('room') room: Room,
+        @Body('membership') member: Member,
     ): Observable<Room | Object> {
-        return this.roomMembershipService
-            .leaveRoom(roomAddress, req.user.user)
-            .pipe(
-                map((newRoom: Room) => {
-                    return newRoom;
-                }),
-                catchError((err) => of({ error: err.message })),
-            );
+        return this.roomMembershipService.leaveRoom(room, member).pipe(
+            map((newRoom: Room) => {
+                return newRoom;
+            }),
+            catchError((err) => of({ error: err.message })),
+        );
     }
 
     @Post('/stream')

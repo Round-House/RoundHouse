@@ -101,7 +101,7 @@ export class RoomCrudService {
                                         switchMap((room: Room) => {
                                             return from(
                                                 this.roomMembershipService.joinRoom(
-                                                    room.roomAddress,
+                                                    room,
                                                     user,
                                                 ),
                                             ).pipe(

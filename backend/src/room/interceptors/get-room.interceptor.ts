@@ -20,31 +20,29 @@ export class GetRoomInterceptor implements NestInterceptor {
         const roomAddress: string = request.query.roomAddress;
         const user: User = request.body.user;
 
+        delete request.body.room;
+        delete request.body.member;
+
         return this.roomCrudService
             .getRoom(roomAddress, ['memberships', 'memberships.user', 'stream'])
             .pipe(
                 switchMap((room: Room) => {
                     if (room.roomAddress === roomAddress && roomAddress) {
-                        if (
-                            room.memberships.includes(
-                                room.memberships.find(
-                                    (membership) =>
-                                        membership.user.username ===
-                                        user.username,
-                                ),
-                            )
-                        ) {
-                            delete room.memberships;
-                            request.body.room = room;
-                            return next.handle().pipe(
-                                map((flow) => {
-                                    return flow;
-                                }),
-                            );
+                        const member = room.memberships.find(
+                            (member) => member.user.username === user.username,
+                        );
+                        if (room.memberships.includes(member)) {
+                            request.body.member = member;
                         }
-                        throw new Error('User not in room');
+                        delete room.memberships;
+                        request.body.room = room;
+                        return next.handle().pipe(
+                            map((flow) => {
+                                return flow;
+                            }),
+                        );
                     }
-                    throw new Error('Room not found');
+                    throw new Error(`Room ${room.roomAddress} not found`);
                 }),
             );
     }
