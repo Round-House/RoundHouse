@@ -20,8 +20,6 @@ export class RoomMembershipService {
     constructor(
         @InjectRepository(RoomEntity)
         private readonly roomRepository: Repository<RoomEntity>,
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(MemberEntity)
         private readonly memberRepository: Repository<MemberEntity>,
         private dataSource: DataSource,

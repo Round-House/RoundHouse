@@ -4,8 +4,8 @@ import {
     ExecutionContext,
     CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { RoomEntity } from '../models/room.entity';
 import { RoomStreamService } from '../services/room-stream/room-stream.service';
@@ -17,7 +17,7 @@ export class GetRoomStreamInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();
         const streamParams: string[] = request.body.streamParams;
-        const room: RoomEntity = request.body.room;
+        const room: RoomEntity | undefined = request.body.room;
 
         delete request.body.stream;
 
@@ -35,6 +35,7 @@ export class GetRoomStreamInterceptor implements NestInterceptor {
                     }
                     throw new Error('Stream not found');
                 }),
+                catchError((err) => throwError(() => err)),
             );
     }
 }

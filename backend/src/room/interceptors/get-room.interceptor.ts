@@ -18,21 +18,27 @@ export class GetRoomInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();
         const roomAddress: string = request.query.roomAddress;
-        const user: UserEntity = request.body.user;
+        const user: UserEntity | undefined = request.body.user;
 
         delete request.body.room;
         delete request.body.member;
 
         return this.roomCrudService
-            .getRoom(roomAddress, ['memberships', 'memberships.user'])
+            .getRoom(roomAddress, ['memberships', 'memberships.user', 'stream'])
             .pipe(
                 switchMap((room: RoomEntity) => {
-                    if (room.roomAddress === roomAddress && roomAddress) {
-                        const member = room.memberships.find(
-                            (member) => member.user.username === user.username,
-                        );
-                        if (room.memberships.includes(member)) {
-                            request.body.member = member;
+                    if (
+                        typeof roomAddress !== null &&
+                        room.roomAddress === roomAddress
+                    ) {
+                        if (user) {
+                            const member = room.memberships.find(
+                                (member) =>
+                                    member.user.username === user.username,
+                            );
+                            if (room.memberships.includes(member)) {
+                                request.body.member = member;
+                            }
                         }
                         delete room.memberships;
                         request.body.room = room;
