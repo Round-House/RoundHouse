@@ -42,19 +42,6 @@ export class RoomStreamService {
         this.cache = cacheManager.store.getClient();
     }
 
-    getStream(id: number, relations: string[]): Observable<StreamEntity> {
-        return from(
-            this.streamRepository.findOneOrFail({
-                where: { id },
-                relations: relations,
-            }),
-        ).pipe(
-            map((stream: StreamEntity) => {
-                return stream;
-            }),
-        );
-    }
-
     createMessage(
         room: RoomEntity,
         stream: StreamEntity,

@@ -42,6 +42,7 @@ export class GetRoomInterceptor implements NestInterceptor {
                         }
                         delete room.memberships;
                         request.body.room = room;
+                        request.body.streamId = room.stream;
                         return next.handle().pipe(
                             map((flow) => {
                                 return flow;

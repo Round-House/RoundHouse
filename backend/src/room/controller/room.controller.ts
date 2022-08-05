@@ -16,15 +16,15 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { StreamDeliverableDto } from 'src/stream/models';
 import { TreeRoomDto } from '../models';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { FindUserInterceptor } from 'src/user/interceptors/find-user.interceptor';
+import { AuthUserInterceptor } from 'src/auth/interceptors/auth-user.interceptor';
 import { GetRoomInterceptor } from '../interceptors/get-room.interceptor';
-import { GetRoomStreamInterceptor } from '../interceptors/get-room-stream.interceptor';
-import { SetStreamMessageParamInterceptor } from '../interceptors/set-stream-msg-param.interceptor';
+import { SetStreamMessageParamInterceptor } from '../../stream/interceptors/set-stream-msg-param.interceptor';
 import { MemberEntity } from '../member/models/member.entity';
 import { UserEntity } from 'src/user/models/user.entity';
 import { RoomEntity } from '../models/room.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
+import { GetStreamInterceptor } from 'src/stream/interceptors/get-stream.interceptor';
 
 export const ROOM_ENTRIES_URL = 'http://localhost:3000/api/rooms';
 @Controller('rooms')
@@ -73,7 +73,7 @@ export class RoomController {
 
     @Get('/rootRooms')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FindUserInterceptor)
+    @UseInterceptors(AuthUserInterceptor)
     getRootRooms(@Body('user') user: UserEntity): Observable<TreeRoomDto[]> {
         return this.roomMembershipService.getRootRooms(user);
     }
@@ -93,7 +93,7 @@ export class RoomController {
 
     @Get('/usersSubRooms')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
+    @UseInterceptors(AuthUserInterceptor, GetRoomInterceptor)
     getUsersSubRooms(
         @Body('room') room: RoomEntity,
         @Body('user') user: UserEntity,
@@ -108,7 +108,7 @@ export class RoomController {
 
     @Post('/create')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
+    @UseInterceptors(AuthUserInterceptor, GetRoomInterceptor)
     createRoom(
         @Body('newRoom') newRoom: CreateRoomDto,
         @Body('user') user: UserEntity,
@@ -123,7 +123,7 @@ export class RoomController {
 
     @Post('/join')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
+    @UseInterceptors(AuthUserInterceptor, GetRoomInterceptor)
     joinRoom(
         @Body('room') room: RoomEntity,
         @Body('user') user: UserEntity,
@@ -139,7 +139,7 @@ export class RoomController {
 
     @Post('/leave')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FindUserInterceptor, GetRoomInterceptor)
+    @UseInterceptors(AuthUserInterceptor, GetRoomInterceptor)
     leaveRoom(
         @Body('room') room: RoomEntity,
         @Body('membership') member: MemberEntity,
@@ -155,10 +155,10 @@ export class RoomController {
     @Post('/stream')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(
-        FindUserInterceptor,
+        AuthUserInterceptor,
         GetRoomInterceptor,
         SetStreamMessageParamInterceptor,
-        GetRoomStreamInterceptor,
+        GetStreamInterceptor,
     )
     createMessage(
         @Body('text') message: string,
@@ -179,9 +179,9 @@ export class RoomController {
     @Get('/stream')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(
-        FindUserInterceptor,
+        AuthUserInterceptor,
         GetRoomInterceptor,
-        GetRoomStreamInterceptor,
+        GetStreamInterceptor,
     )
     // GetRoomStreamInterceptor Implies @Query('roomAddress') roomAddress: string,
     getStream(

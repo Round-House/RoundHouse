@@ -20,6 +20,18 @@ export class AuthService {
         private readonly jwtService: JwtService,
     ) {}
 
+    findOne(username: string): Observable<UserEntity> {
+        return from(
+            this.userRepository.findOne({
+                where: { username },
+            }),
+        ).pipe(
+            map((user: UserEntity) => {
+                return user;
+            }),
+        );
+    }
+
     //User Authentication
     regiesterLocal(user: CreateUserDto): Observable<UserJwtDto> {
         return this.hashPassword(user.password).pipe(

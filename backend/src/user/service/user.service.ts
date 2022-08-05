@@ -41,9 +41,13 @@ export class UserService {
         ).pipe(map((users: Pagination<User>) => users));
     }
 
-    // Ment to be used in find-user.guard.ts, will return first user if no username is provided
-    findOne(username: string): Observable<User> {
-        return from(this.userRepository.findOne({ where: { username } })).pipe(
+    findOne(username: string, relations: string[]): Observable<User> {
+        return from(
+            this.userRepository.findOne({
+                where: { username },
+                relations: relations,
+            }),
+        ).pipe(
             map((user: User) => {
                 return user;
             }),

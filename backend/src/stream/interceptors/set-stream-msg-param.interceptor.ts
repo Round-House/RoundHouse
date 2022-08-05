@@ -6,11 +6,10 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { RoomStreamService } from '../services/room-stream/room-stream.service';
 
 @Injectable()
 export class SetStreamMessageParamInterceptor implements NestInterceptor {
-    constructor(private roomStreamService: RoomStreamService) {}
+    constructor() {}
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();

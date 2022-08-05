@@ -8,7 +8,6 @@ import { UserController } from './controller/user.controller';
 import { UserEntity } from './models/user.entity';
 import { UserService } from './service/user.service';
 import { ExternalMembershipEntity } from 'src/room/member/models/external-membership.entity';
-import { FindUserInterceptor } from './interceptors/find-user.interceptor';
 
 @Module({
     imports: [
@@ -22,7 +21,7 @@ import { FindUserInterceptor } from './interceptors/find-user.interceptor';
         StreamModule,
     ],
     controllers: [UserController],
-    providers: [UserService, FindUserInterceptor],
+    providers: [UserService],
     exports: [UserService],
 })
 export class UserModule {}
