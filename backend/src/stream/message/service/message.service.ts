@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { from, Observable } from 'rxjs';
 import { Repository } from 'typeorm';
 import { MessageEntity } from '../models/message.entity';
-import { Message } from '../models/message.interface';
 
 @Injectable()
 export class MessageService {
@@ -12,7 +11,7 @@ export class MessageService {
         private readonly streamRepository: Repository<MessageEntity>,
     ) {}
 
-    findAll(): Observable<Message[]> {
+    findAll(): Observable<MessageEntity[]> {
         return from(this.streamRepository.find());
     }
 }

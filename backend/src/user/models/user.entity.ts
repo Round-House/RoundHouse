@@ -1,6 +1,4 @@
 import { MessageEntity } from 'src/stream/message/models/message.entity';
-import { Message } from 'src/stream/message/models/message.interface';
-import { Stream } from 'src/stream/models/stream.interface';
 import {
     Column,
     Entity,
@@ -12,12 +10,9 @@ import {
 } from 'typeorm';
 import 'reflect-metadata';
 import { StreamEntity } from 'src/stream/models/stream.entity';
-import { UserAuth } from 'src/auth/models/userAuth.interface';
 import { UserAuthEntity } from 'src/auth/models/userAuth.entity';
 import { MemberEntity } from 'src/room/member/models/member.entity';
-import { Member } from 'src/room/member/models/member.interface';
 import { ExternalMembershipEntity } from 'src/room/member/models/external-membership.entity';
-import { ExternalMembership } from 'src/room/member/models/external-membership.interface';
 import { UserRole } from './user.interface';
 
 @Entity()
@@ -37,7 +32,7 @@ export class UserEntity {
 
     @OneToOne(() => UserAuthEntity, { cascade: true })
     @JoinColumn()
-    auth: UserAuth;
+    auth: UserAuthEntity;
 
     //Images
     @Column({ nullable: true })
@@ -48,18 +43,18 @@ export class UserEntity {
 
     //Messages
     @OneToMany(() => MessageEntity, (message) => message.account)
-    messages: Message[];
+    messages: MessageEntity[];
 
     @OneToOne(() => StreamEntity, { cascade: true })
     @JoinColumn()
-    stream: Stream;
+    stream: StreamEntity;
 
     //Room Memberships
     @OneToMany(() => MemberEntity, (member) => member.user)
-    memberships: Member[];
+    memberships: MemberEntity[];
 
     @OneToMany(() => ExternalMembershipEntity, (member) => member.user)
-    externalMemberships: ExternalMembership[];
+    externalMemberships: ExternalMembershipEntity[];
 
     //Misc
     @Column({ nullable: true })

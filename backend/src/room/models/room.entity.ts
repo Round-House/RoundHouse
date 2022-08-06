@@ -1,5 +1,3 @@
-import { Room } from './room.interface';
-import { Stream } from 'src/stream/models/stream.interface';
 import {
     Column,
     Entity,
@@ -15,7 +13,6 @@ import {
 } from 'typeorm';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { MemberEntity } from '../member/models/member.entity';
-import { Member } from '../member/models/member.interface';
 
 @Entity()
 @Tree('materialized-path')
@@ -51,17 +48,17 @@ export class RoomEntity {
     handle: string;
 
     @TreeParent()
-    parentRoom: Relation<Room>;
+    parentRoom: Relation<RoomEntity>;
 
     @TreeChildren()
-    childRooms: Relation<Room>[];
+    childRooms: Relation<RoomEntity>[];
 
     //Messages
     @OneToOne(() => StreamEntity, { cascade: true })
     @JoinColumn()
-    stream: Stream;
+    stream: StreamEntity;
 
     //User Memberships
     @OneToMany(() => MemberEntity, (member) => member.room)
-    memberships: Relation<Member>[];
+    memberships: Relation<MemberEntity>[];
 }
