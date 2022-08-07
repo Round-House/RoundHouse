@@ -15,6 +15,7 @@ export interface Room {
 
     //Room Tree
     roomAddress: string;
+    handle: string;
     parentRoom?: Room;
     childRooms: Room[];
 

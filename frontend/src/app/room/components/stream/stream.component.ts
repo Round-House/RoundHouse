@@ -83,14 +83,14 @@ export class StreamComponent implements OnInit, AfterViewChecked {
         )
         .subscribe((response: any) => {
           // If there are no more messages, set the flag to false and return
-          if (response.messages.items.length == 0) {
+          if (response.messages.length == 0) {
             this.moreMessages = false;
             this.gettingMessages = false;
             return;
           }
 
           // Add the messages to the stream
-          var messages: any[] = response.messages.items.reverse();
+          var messages: any[] = response.messages.reverse();
 
           messages.forEach((message: any) => {
             message.nextAuthor = this.nextAuthor;

@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { Message } from '../models/message.interface';
+import { MessageEntity } from '../models/message.entity';
 import { MessageService } from '../service/message.service';
 
 @Controller('messages')
@@ -8,7 +8,7 @@ export class MessageController {
     constructor(private messageService: MessageService) {}
 
     @Get()
-    findAll(): Observable<Message[]> {
+    findAll(): Observable<MessageEntity[]> {
         return this.messageService.findAll();
     }
 }

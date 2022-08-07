@@ -22,5 +22,6 @@ import { ExternalMembershipEntity } from 'src/room/member/models/external-member
     ],
     controllers: [UserController],
     providers: [UserService],
+    exports: [UserService],
 })
 export class UserModule {}

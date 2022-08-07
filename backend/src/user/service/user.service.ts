@@ -3,13 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../models/user.entity';
 import { Repository } from 'typeorm';
 import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
-import { User, UserRole } from '../models/user.interface';
-import { CreateMessageDto } from 'src/stream/message/models';
-import { Message } from 'src/stream/message/models/message.interface';
+import { UserRole } from '../models/user.interface';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
-import { Stream } from 'src/stream/models/stream.interface';
-import { UserJwtDto } from 'src/auth/models';
 import {
     Pagination,
     IPaginationOptions,
@@ -29,9 +25,9 @@ export class UserService {
         private readonly streamRepository: Repository<StreamEntity>,
     ) {}
 
-    findAll(options: IPaginationOptions): Observable<Pagination<User>> {
+    findAll(options: IPaginationOptions): Observable<Pagination<UserEntity>> {
         return from(
-            paginate<User>(this.userRepository, options, {
+            paginate<UserEntity>(this.userRepository, options, {
                 relations: [
                     'memberships',
                     'memberships.room',
@@ -39,16 +35,29 @@ export class UserService {
                     'stream.messages',
                 ],
             }),
-        ).pipe(map((users: Pagination<User>) => users));
+        ).pipe(map((users: Pagination<UserEntity>) => users));
     }
 
-    getAdmin(): Observable<User | any> {
+    findOne(username: string, relations: string[]): Observable<UserEntity> {
+        return from(
+            this.userRepository.findOne({
+                where: { username },
+                relations: relations,
+            }),
+        ).pipe(
+            map((user: UserEntity) => {
+                return user;
+            }),
+        );
+    }
+
+    getAdmin(): Observable<UserEntity | any> {
         return from(
             this.userRepository.findOneOrFail({
                 where: { role: UserRole.ADMIN },
             }),
         ).pipe(
-            map((admin: User) => {
+            map((admin: UserEntity) => {
                 return admin;
             }),
             catchError((err) => throwError(() => err)),
@@ -61,7 +70,7 @@ export class UserService {
                 where: { username },
             }),
         ).pipe(
-            map((user: User) => {
+            map((user: UserEntity) => {
                 return user ? true : false;
             }),
             catchError((err) => throwError(() => err)),
@@ -69,85 +78,46 @@ export class UserService {
     }
 
     getStreamMessages(
-        username: string,
+        user: UserEntity,
         options: IPaginationOptions,
-    ): Observable<Stream | any> {
+    ): Observable<StreamEntity | any> {
+        const deliverable = new StreamDeliverableDto();
+        deliverable.stream = user.stream;
+
         return from(
-            this.userRepository.findOneOrFail({
-                where: { username: username },
-                relations: {
-                    stream: true,
-                },
+            paginate<MessageEntity>(this.messageRepository, options, {
+                relations: ['account', 'comments'],
+                where: { stream: user.stream },
             }),
         ).pipe(
-            switchMap((user: User) => {
-                const deliverable = new StreamDeliverableDto();
-                deliverable.stream = user.stream;
-
-                return from(
-                    paginate<Message>(this.messageRepository, options, {
-                        relations: ['account', 'comments'],
-                        where: { stream: user.stream },
-                    }),
-                ).pipe(
-                    map((messages: Pagination<Message, IPaginationMeta>) => {
-                        deliverable.messages = messages;
-                        return deliverable;
-                    }),
-                );
+            map((messages: Pagination<MessageEntity, IPaginationMeta>) => {
+                deliverable.messages = messages.items;
+                return deliverable;
             }),
         );
     }
 
     writeToStream(
-        message: CreateMessageDto,
-        user: UserJwtDto,
-    ): Observable<Message | any> {
+        message: string,
+        user: UserEntity,
+        stream: StreamEntity,
+    ): Observable<MessageEntity | any> {
         const newMessage = new MessageEntity();
-        newMessage.text = message.text;
+        newMessage.text = message;
         newMessage.comments = new StreamEntity();
+        newMessage.account = user;
 
-        return from(
-            this.userRepository.findOneOrFail({
-                where: { username: user.username },
-                relations: {
-                    stream: true,
-                },
-            }),
-        ).pipe(
-            switchMap((author: User) => {
-                newMessage.account = author;
+        return from(this.messageRepository.save(newMessage)).pipe(
+            switchMap((message: MessageEntity) => {
+                stream.messages.push(message);
 
-                return from(
-                    this.streamRepository.findOneOrFail({
-                        where: { id: author.stream.id },
-                        relations: {
-                            messages: true,
-                        },
-                    }),
-                ).pipe(
-                    switchMap((stream: Stream) => {
-                        return from(
-                            this.messageRepository.save(newMessage),
-                        ).pipe(
-                            switchMap((message: Message) => {
-                                stream.messages.push(message);
-
-                                return from(
-                                    this.streamRepository.save(stream),
-                                ).pipe(
-                                    map(() => {
-                                        return message;
-                                    }),
-                                    catchError((err) => throwError(() => err)),
-                                );
-                            }),
-                        );
+                return from(this.streamRepository.save(stream)).pipe(
+                    map(() => {
+                        return message;
                     }),
                     catchError((err) => throwError(() => err)),
                 );
             }),
-            catchError((err) => throwError(() => err)),
         );
     }
 }
