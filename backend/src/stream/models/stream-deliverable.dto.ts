@@ -1,11 +1,11 @@
 import { IsNotEmpty } from 'class-validator';
-import { Message } from '../message/models/message.interface';
-import { Stream } from './stream.interface';
+import { MessageEntity } from '../message/models/message.entity';
+import { StreamEntity } from './stream.entity';
 
 export class StreamDeliverableDto {
     @IsNotEmpty()
-    stream: Stream;
+    stream: StreamEntity;
 
     @IsNotEmpty()
-    messages: Message[];
+    messages: MessageEntity[];
 }

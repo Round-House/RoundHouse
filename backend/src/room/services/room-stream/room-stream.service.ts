@@ -1,12 +1,18 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
+import {
+    catchError,
+    from,
+    map,
+    Observable,
+    switchMap,
+    throwError,
+    bindCallback,
+} from 'rxjs';
 import { RoomEntity } from 'src/room/models/room.entity';
 import { MessageEntity } from 'src/stream/message/models/message.entity';
-import { Message } from 'src/stream/message/models/message.interface';
 import { StreamDeliverableDto } from 'src/stream/models';
 import { StreamEntity } from 'src/stream/models/stream.entity';
-import { Stream } from 'src/stream/models/stream.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { LessThan, Repository } from 'typeorm';
 import {
@@ -47,7 +53,7 @@ export class RoomStreamService {
         stream: StreamEntity,
         user: UserEntity,
         message: string,
-    ): Observable<Message> {
+    ): Observable<MessageEntity> {
         const newMessage = new MessageEntity();
         newMessage.text = message;
         newMessage.comments = new StreamEntity();
@@ -60,19 +66,7 @@ export class RoomStreamService {
                 return from(this.streamRepository.save(stream)).pipe(
                     map(() => {
                         // Store message in cache of room address
-                        this.cache.lpush(
-                            'room:' + room.roomAddress + ':messages',
-                            JSON.stringify(message),
-                        );
-                        this.cache.ltrim(
-                            'room:' + room.roomAddress + ':messages',
-                            0,
-                            19,
-                        );
-                        this.cache.expire(
-                            'room:' + room.roomAddress + ':messages',
-                            1200,
-                        );
+                        this.cacheMessages(room.roomAddress, [message]);
 
                         return message;
                     }),
@@ -82,70 +76,101 @@ export class RoomStreamService {
         );
     }
 
+    private cacheMessages(roomAddress: string, messages: MessageEntity[]) {
+        const messageStrings: string[] = messages.map(
+            (message: MessageEntity) => {
+                return JSON.stringify(message);
+            },
+        );
+
+        this.cache.lpush('room:' + roomAddress + ':messages', messageStrings);
+        this.cache.ltrim('room:' + roomAddress + ':messages', 0, 9);
+        this.cache.expire('room:' + roomAddress + ':messages', 1200);
+    }
+
     readStream(
         room: RoomEntity,
         stream: StreamEntity,
         options: IPaginationOptions,
         lastMessage: Date,
-    ): Observable<any> {
-        {
-            const deliverable = new StreamDeliverableDto();
-            deliverable.stream = stream;
+    ): Observable<StreamDeliverableDto> {
+        const deliverable = new StreamDeliverableDto();
+        deliverable.stream = stream;
 
-            lastMessage.getTime() >= Date.now();
+        lastMessage.getTime() >= Date.now();
 
-            var hasCache: string;
+        const cacheExistsObs = bindCallback(this.cache.exists);
 
-            this.cache.get(
+        return from(
+            cacheExistsObs.call(
+                this.cache,
                 'room:' + room.roomAddress + ':messages',
-                (error, cb) => {
-                    hasCache = cb;
-                },
-            );
-
-            if (hasCache) {
-                const cacheMessages = this.getMessageCache(room.roomAddress);
-                if (cacheMessages instanceof Error) {
-                    // Get messages from postgres instead
-                    throw cacheMessages;
+            ),
+        ).pipe(
+            switchMap((cacheExists: [Error, number]) => {
+                if (cacheExists[1] === 1) {
+                    return from(
+                        this.getMessageCache(room.roomAddress).pipe(
+                            map((messages: MessageEntity[]) => {
+                                deliverable.messages = messages;
+                                return deliverable;
+                            }),
+                        ),
+                    );
+                } else {
+                    return from(
+                        this.getMessagePostgres(
+                            options,
+                            lastMessage,
+                            stream,
+                            room,
+                        ),
+                    ).pipe(
+                        map((messages: MessageEntity[]) => {
+                            deliverable.messages = messages;
+                            return deliverable;
+                        }),
+                        catchError((err) => throwError(() => err)),
+                    );
                 }
-                //deliverable.messages =
-                cacheMessages;
-
-                console.log(deliverable);
-                //return deliverable;
-            } else {
-                //use private method to get messages from postgres
-                return this.getMessagePostgres(options, lastMessage, stream);
-            }
-        }
+            }),
+        );
     }
 
-    private getMessageCache(roomAddress: string): MessageEntity[] | Error {
-        this.cache.lrange(
-            'room:' + roomAddress + ':messages',
-            0,
-            19,
-            (error, cacheMessages) => {
-                if (error) {
-                    throw error;
+    private getMessageCache(roomAddress: string): Observable<MessageEntity[]> {
+        const cacheLrangeObs = bindCallback(this.cache.lrange);
+
+        return from(
+            cacheLrangeObs.call(
+                this.cache,
+                'room:' + roomAddress + ':messages',
+                0,
+                9,
+            ),
+        ).pipe(
+            map((messages: [Error, string[]]) => {
+                if (messages[0] instanceof Error) {
+                    throw messages[0];
+                } else {
+                    const messageObjects: MessageEntity[] = messages[1]
+                        .map((message: string) => {
+                            return JSON.parse(message);
+                        })
+                        .reverse();
+                    return messageObjects;
                 }
-                return cacheMessages.map((message) => {
-                    const messageObject: MessageEntity[] = JSON.parse(message);
-                    return messageObject;
-                });
-            },
+            }),
         );
-        return new Error('Cache not found.');
     }
 
     private getMessagePostgres(
         options: IPaginationOptions,
         lastMessage: Date,
-        stream: Stream,
-    ): Observable<Message[]> {
+        stream: StreamEntity,
+        room: RoomEntity,
+    ): Observable<MessageEntity[]> {
         return from(
-            paginate<Message>(this.messageRepository, options, {
+            paginate<MessageEntity>(this.messageRepository, options, {
                 relations: ['account', 'comments'],
                 where: {
                     stream,
@@ -156,7 +181,11 @@ export class RoomStreamService {
                 },
             }),
         ).pipe(
-            map((messages: Pagination<Message, IPaginationMeta>) => {
+            map((messages: Pagination<MessageEntity, IPaginationMeta>) => {
+                if (lastMessage.getTime() >= Date.now()) {
+                    this.cacheMessages(room.roomAddress, messages.items);
+                }
+
                 return messages.items;
             }),
         );

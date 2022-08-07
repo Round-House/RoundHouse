@@ -35,7 +35,7 @@ export class RoomMembershipService {
                 .andWhere('room.parentRoom is null')
                 .getMany(),
         ).pipe(
-            map((rooms: Room[]) => {
+            map((rooms: RoomEntity[]) => {
                 const treeRoomList = rooms.map((room) => new TreeRoomDto(room));
                 return treeRoomList;
             }),
