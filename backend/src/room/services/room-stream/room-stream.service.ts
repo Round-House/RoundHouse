@@ -48,21 +48,25 @@ export class RoomStreamService {
         this.cache = cacheManager.store.getClient();
     }
 
+    // Used whenever a user sends a message to a room
     createMessage(
         room: RoomEntity,
         stream: StreamEntity,
         user: UserEntity,
         message: string,
     ): Observable<MessageEntity> {
+        // Create the message entity
         const newMessage = new MessageEntity();
         newMessage.text = message;
         newMessage.comments = new StreamEntity();
         newMessage.account = user;
 
+        // Save message to message database
         return from(this.messageRepository.save(newMessage)).pipe(
             switchMap((message: MessageEntity) => {
                 stream.messages.push(message);
 
+                // link to stream database
                 return from(this.streamRepository.save(stream)).pipe(
                     map(() => {
                         // Store message in cache of room address
@@ -76,70 +80,91 @@ export class RoomStreamService {
         );
     }
 
+    // Cache messages in Redis
     private cacheMessages(roomAddress: string, messages: MessageEntity[]) {
+        // Convert JSON messages to string for storage in Redis
         const messageStrings: string[] = messages.map(
             (message: MessageEntity) => {
                 return JSON.stringify(message);
             },
         );
 
+        // Store messages in cache, and refreash the expiry time
         this.cache.rpush('room:' + roomAddress + ':messages', messageStrings);
         this.cache.ltrim('room:' + roomAddress + ':messages', -10, -1);
         this.cache.expire('room:' + roomAddress + ':messages', 1200);
     }
 
+    // Get messages from cache or database
     readStream(
         room: RoomEntity,
         stream: StreamEntity,
         options: IPaginationOptions,
         lastMessage: Date,
     ): Observable<StreamDeliverableDto> {
+        // Create deliverable for messages
         const deliverable = new StreamDeliverableDto();
         deliverable.stream = stream;
 
-        lastMessage.getTime() >= Date.now();
-
+        // Check if messages are in cache
         const cacheExistsObs = bindCallback(this.cache.exists);
 
-        return from(
-            cacheExistsObs.call(
-                this.cache,
-                'room:' + room.roomAddress + ':messages',
-            ),
-        ).pipe(
-            switchMap((cacheExists: [Error, number]) => {
-                if (cacheExists[1] === 1) {
-                    return from(
-                        this.getMessageCache(room.roomAddress).pipe(
+        // Only get messages from cache if we are requesting the newest messages
+        if (lastMessage.getTime() >= Date.now()) {
+            return from(
+                cacheExistsObs.call(
+                    this.cache,
+                    'room:' + room.roomAddress + ':messages',
+                ),
+            ).pipe(
+                switchMap((cacheExists: [Error, number]) => {
+                    if (cacheExists[1] === 1) {
+                        // Redis foun the key, get messages from Redis
+                        return from(
+                            this.getMessageCache(room.roomAddress).pipe(
+                                map((messages: MessageEntity[]) => {
+                                    deliverable.messages = messages;
+                                    return deliverable;
+                                }),
+                            ),
+                        );
+                    } else {
+                        // Redis did not find the key, get messages from database
+                        return from(
+                            this.getMessagePostgres(
+                                options,
+                                lastMessage,
+                                stream,
+                                room,
+                            ),
+                        ).pipe(
                             map((messages: MessageEntity[]) => {
                                 deliverable.messages = messages;
                                 return deliverable;
                             }),
-                        ),
-                    );
-                } else {
-                    return from(
-                        this.getMessagePostgres(
-                            options,
-                            lastMessage,
-                            stream,
-                            room,
-                        ),
-                    ).pipe(
-                        map((messages: MessageEntity[]) => {
-                            deliverable.messages = messages;
-                            return deliverable;
-                        }),
-                        catchError((err) => throwError(() => err)),
-                    );
-                }
-            }),
-        );
+                            catchError((err) => throwError(() => err)),
+                        );
+                    }
+                }),
+            );
+        } else {
+            // Get older messages from database
+            return from(
+                this.getMessagePostgres(options, lastMessage, stream, room),
+            ).pipe(
+                map((messages: MessageEntity[]) => {
+                    deliverable.messages = messages;
+                    return deliverable;
+                }),
+                catchError((err) => throwError(() => err)),
+            );
+        }
     }
 
     private getMessageCache(roomAddress: string): Observable<MessageEntity[]> {
         const cacheLrangeObs = bindCallback(this.cache.lrange);
 
+        // Get the 10 most recent messages from cache
         return from(
             cacheLrangeObs.call(
                 this.cache,
@@ -152,11 +177,12 @@ export class RoomStreamService {
                 if (messages[0] instanceof Error) {
                     throw messages[0];
                 } else {
-                    const messageObjects: MessageEntity[] = messages[1]
-                        .map((message: string) => {
+                    // Convert Redis string messages to JSON messages
+                    const messageObjects: MessageEntity[] = messages[1].map(
+                        (message: string) => {
                             return JSON.parse(message);
-                        })
-                        .reverse();
+                        },
+                    );
                     return messageObjects;
                 }
             }),
@@ -169,6 +195,7 @@ export class RoomStreamService {
         stream: StreamEntity,
         room: RoomEntity,
     ): Observable<MessageEntity[]> {
+        // Get messages from database based on pagination options and last message
         return from(
             paginate<MessageEntity>(this.messageRepository, options, {
                 relations: ['account', 'comments'],
@@ -182,6 +209,7 @@ export class RoomStreamService {
             }),
         ).pipe(
             map((messages: Pagination<MessageEntity, IPaginationMeta>) => {
+                // Store messages in cache if they are the newest messages
                 if (lastMessage.getTime() >= Date.now()) {
                     this.cacheMessages(room.roomAddress, messages.items);
                 }
