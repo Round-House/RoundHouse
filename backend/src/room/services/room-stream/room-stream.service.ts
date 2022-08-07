@@ -83,8 +83,8 @@ export class RoomStreamService {
             },
         );
 
-        this.cache.lpush('room:' + roomAddress + ':messages', messageStrings);
-        this.cache.ltrim('room:' + roomAddress + ':messages', 0, 9);
+        this.cache.rpush('room:' + roomAddress + ':messages', messageStrings);
+        this.cache.ltrim('room:' + roomAddress + ':messages', -10, -1);
         this.cache.expire('room:' + roomAddress + ':messages', 1200);
     }
 
