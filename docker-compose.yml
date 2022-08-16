@@ -51,8 +51,14 @@ services:
       - /bin/sh
       - -c
       - redis-server
+      - --bind
+      - redis
+      - --port
+      - "6379"
     volumes:
       - ./redis:/data
+    ports:
+      - 6379:6379
     env_file: .env
 
   # Postgres Database
