@@ -4,7 +4,6 @@ import {
     Transport,
     ClientProxy,
 } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class PluginsService {
@@ -20,7 +19,7 @@ export class PluginsService {
         });
     }
 
-    getPlugins(plugin: string, body: any): Observable<any> {
-        return this.client.send<any>(plugin, body);
+    postPlugins(request: string, body: any) {
+        return this.client.send<any, any>(request, body);
     }
 }

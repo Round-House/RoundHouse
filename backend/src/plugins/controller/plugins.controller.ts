@@ -1,13 +1,12 @@
-import { Body, Controller, Get, Query } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Body, Controller, Post, Query } from '@nestjs/common';
 import { PluginsService } from '../service/plugins.service';
 
 @Controller('plugins')
 export class PluginsController {
     constructor(private pluginsService: PluginsService) {}
 
-    @Get()
-    getPlugins(@Query() query: any, @Body() body: any): Observable<any> {
-        return this.pluginsService.getPlugins(query.plugin, body);
+    @Post()
+    postPlugins(@Query() query: any, @Body() body: any) {
+        return this.pluginsService.postPlugins(query.request, body);
     }
 }
