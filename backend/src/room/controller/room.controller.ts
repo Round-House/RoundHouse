@@ -108,9 +108,9 @@ export class RoomController {
 
     @Post('/create')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(AuthUserInterceptor, GetRoomInterceptor)
+    @UseInterceptors(AuthUserInterceptor)
     createRoom(
-        @Body('newRoom') newRoom: CreateRoomDto,
+        @Body() newRoom: CreateRoomDto,
         @Body('user') user: UserEntity,
     ): Observable<RoomEntity | Object> {
         return this.roomCrudService.createRoom(newRoom, user).pipe(

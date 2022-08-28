@@ -89,14 +89,26 @@ export class RoomCrudService {
                             return from(this.roomRepository.save(newRoom)).pipe(
                                 switchMap((room: RoomEntity) => {
                                     return from(
-                                        this.roomMembershipService.joinRoom(
-                                            room,
-                                            user,
-                                        ),
+                                        this.getRoom(room.roomAddress, [
+                                            'memberships',
+                                        ]),
                                     ).pipe(
-                                        map(() => {
-                                            return room;
+                                        switchMap((room: RoomEntity) => {
+                                            return from(
+                                                this.roomMembershipService.joinRoom(
+                                                    room,
+                                                    user,
+                                                ),
+                                            ).pipe(
+                                                map(() => {
+                                                    room.memberships = null;
+                                                    return room;
+                                                }),
+                                            );
                                         }),
+                                        catchError((err) =>
+                                            throwError(() => err),
+                                        ),
                                     );
                                 }),
                                 catchError((err) => throwError(() => err)),
