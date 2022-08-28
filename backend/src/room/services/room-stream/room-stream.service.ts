@@ -210,7 +210,10 @@ export class RoomStreamService {
         ).pipe(
             map((messages: Pagination<MessageEntity, IPaginationMeta>) => {
                 // Store messages in cache if they are the newest messages
-                if (lastMessage.getTime() >= Date.now()) {
+                if (
+                    lastMessage.getTime() >= Date.now() &&
+                    messages.meta.total > 0
+                ) {
                     this.cacheMessages(room.roomAddress, messages.items);
                 }
 
