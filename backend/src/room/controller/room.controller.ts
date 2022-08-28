@@ -129,6 +129,7 @@ export class RoomController {
         @Body('user') user: UserEntity,
         @Body('member') member: MemberEntity,
     ): Observable<UserEntity | Object> {
+        console.log(room);
         return this.roomMembershipService.joinRoom(room, user, member).pipe(
             map((user: UserEntity) => {
                 return user;

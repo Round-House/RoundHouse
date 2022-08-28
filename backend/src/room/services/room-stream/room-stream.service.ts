@@ -183,7 +183,7 @@ export class RoomStreamService {
                             return JSON.parse(message);
                         },
                     );
-                    return messageObjects;
+                    return messageObjects.reverse();
                 }
             }),
         );
