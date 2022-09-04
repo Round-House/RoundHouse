@@ -1,0 +1,10 @@
+.logo,
+.color {
+  height: 40px;
+  width: 40px;
+  background-color: #7b1fa2;
+  display: flex;
+  margin-top: 10px;
+  margin-left: 20px;
+  clip-path: circle();
+}
