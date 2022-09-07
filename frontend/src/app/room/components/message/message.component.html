@@ -1,7 +1,12 @@
 <div class="container" [ngStyle]="{ 'background-color': background }">
   <app-profile-picture
     *ngIf="!repeatAuthor"
+    [message]="message"
+    [account]="account"
     [color]="color"
+    [viewer]="viewer"
+    [nextAuthor]="nextAuthor"
+    [createdAt]="createdAt"
   ></app-profile-picture>
   <div class="text">
     <p class="username" *ngIf="!repeatAuthor">{{ account }}</p>

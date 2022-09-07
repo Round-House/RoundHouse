@@ -8,3 +8,11 @@
   margin-left: 20px;
   clip-path: circle();
 }
+
+.container {
+  position: relative;
+}
+
+#dynamic {
+  position: absolute;
+}

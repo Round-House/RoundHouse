@@ -74,8 +74,6 @@ export class StreamComponent implements OnInit, AfterViewChecked {
       ? new Date(Date.parse(this.messages[0].createdAt))
       : new Date(Math.round(Number.MAX_SAFE_INTEGER / 1000));
 
-    console.log(this.messages[0]);
-
     // Don't hit the server if there are no more messages
     if (this.moreMessages) {
       this.roomService
@@ -98,8 +96,6 @@ export class StreamComponent implements OnInit, AfterViewChecked {
             message.nextAuthor = this.nextAuthor;
             this.nextAuthor = message.account.username;
           });
-
-          console.log(messages);
 
           this.messages = messages.concat(this.messages);
 

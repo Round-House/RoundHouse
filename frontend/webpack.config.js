@@ -8,6 +8,14 @@ sharedMappings.register(path.join(__dirname, "tsconfig.json"), [
   /* mapped paths to share */
 ]);
 
+modules = {};
+
+try {
+  modules = require("./src/assets/plugins.config.json").remotes;
+} catch (error) {
+  console.log(error);
+}
+
 module.exports = {
   output: {
     uniqueName: "frontend",
@@ -28,17 +36,7 @@ module.exports = {
     new ModuleFederationPlugin({
       library: { type: "module" },
 
-      // For remotes (please adjust)
-      // name: "frontend",
-      // filename: "remoteEntry.js",
-      // exposes: {
-      //     './Component': './/src/app/app.component.ts',
-      // },
-
-      // For hosts (please adjust)
-      remotes: {
-        "status-icon": "status-icon@http://localhost:4210/remoteEntry.js",
-      },
+      remotes: ["modules"],
 
       shared: share({
         "@angular/core": {
