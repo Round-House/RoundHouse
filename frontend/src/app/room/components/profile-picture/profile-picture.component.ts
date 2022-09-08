@@ -1,16 +1,13 @@
 import {
-  loadRemoteModule,
-  LoadRemoteModuleOptions,
-} from '@angular-architects/module-federation';
-import {
   AfterViewInit,
   Component,
-  ComponentRef,
   Input,
+  OnInit,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-//import * as pluginsFile from 'src/assets/plugins.config.json';
+import { ComponentData } from 'src/app/services/plugins/componentData.interface';
+import { PluginsService } from 'src/app/services/plugins/plugins.service';
 
 declare function require(name: string): any;
 
@@ -19,7 +16,7 @@ declare function require(name: string): any;
   templateUrl: './profile-picture.component.html',
   styleUrls: ['./profile-picture.component.scss'],
 })
-export class ProfilePictureComponent implements AfterViewInit {
+export class ProfilePictureComponent implements OnInit, AfterViewInit {
   @Input() account: String = '';
   @Input() message: String = '';
   @Input() color: String = '';
@@ -27,41 +24,28 @@ export class ProfilePictureComponent implements AfterViewInit {
   @Input() nextAuthor: String = '';
   @Input() createdAt: string = '0';
 
+  pluginData: ComponentData[];
+
   @ViewChild('dynamic', {
     read: ViewContainerRef,
   })
-  viewContainerRef: ViewContainerRef | undefined;
+  viewContainerRef!: ViewContainerRef;
 
-  constructor() {}
-
-  ngAfterViewInit(): void {
-    this.getPlugins();
+  constructor(private pluginsService: PluginsService) {
+    this.pluginData = [];
+  }
+  ngOnInit(): void {
+    this.pluginData = [
+      { name: 'account', data: this.account },
+      { name: 'message', data: this.message },
+      { name: 'color', data: this.color },
+      { name: 'viewer', data: this.viewer },
+      { name: 'nextAuthor', data: this.nextAuthor },
+      { name: 'createdAt', data: this.createdAt },
+    ];
   }
 
-  private getPlugins() {
-    try {
-      const pluginsFile = require('/src/assets/plugins.config.json');
-      const modules: any = pluginsFile;
-      modules.app.room.profilePicture.forEach(
-        async (element: { remoteEntry: any; exposedModule: any }) => {
-          const options: LoadRemoteModuleOptions = {
-            type: 'module',
-            remoteEntry: element.remoteEntry,
-            exposedModule: element.exposedModule,
-          };
-          const Module = await loadRemoteModule(options);
-          const pluignComponent: any = Object.keys(Module)[0];
-          const component: ComponentRef<any> =
-            this.viewContainerRef!.createComponent(Module[pluignComponent]);
-          component.instance.account = this.account;
-          component.instance.message = this.message;
-          component.instance.color = this.color;
-          component.instance.viewer = this.viewer;
-          component.instance.nextAuthor = this.nextAuthor;
-          component.instance.createdAt = this.createdAt;
-          this.viewContainerRef!.insert(component.hostView);
-        }
-      );
-    } catch (error) {}
+  ngAfterViewInit(): void {
+    this.pluginsService.getPlugins(this.viewContainerRef, this.pluginData);
   }
 }
