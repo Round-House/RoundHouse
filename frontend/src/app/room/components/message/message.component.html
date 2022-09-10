@@ -1,13 +1,18 @@
 <div class="container" [ngStyle]="{ 'background-color': background }">
-  <div
+  <app-profile-picture
     *ngIf="!repeatAuthor"
-    class="color"
-    [ngStyle]="{ 'background-color': color }"
-  ></div>
+    [message]="message"
+    [account]="account"
+    [color]="color"
+    [viewer]="viewer"
+    [nextAuthor]="nextAuthor"
+    [createdAt]="createdAt"
+  ></app-profile-picture>
   <div class="text">
     <p class="username" *ngIf="!repeatAuthor">{{ account }}</p>
     <p [ngClass]="[repeatAuthor ? 'repeat-author-message' : 'message']">
       {{ message }}
     </p>
   </div>
+  <ng-template #dynamic></ng-template>
 </div>

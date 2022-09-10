@@ -108,9 +108,9 @@ export class RoomController {
 
     @Post('/create')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(AuthUserInterceptor, GetRoomInterceptor)
+    @UseInterceptors(AuthUserInterceptor)
     createRoom(
-        @Body('newRoom') newRoom: CreateRoomDto,
+        @Body() newRoom: CreateRoomDto,
         @Body('user') user: UserEntity,
     ): Observable<RoomEntity | Object> {
         return this.roomCrudService.createRoom(newRoom, user).pipe(
@@ -129,6 +129,7 @@ export class RoomController {
         @Body('user') user: UserEntity,
         @Body('member') member: MemberEntity,
     ): Observable<UserEntity | Object> {
+        console.log(room);
         return this.roomMembershipService.joinRoom(room, user, member).pipe(
             map((user: UserEntity) => {
                 return user;

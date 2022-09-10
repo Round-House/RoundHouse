@@ -2,13 +2,20 @@ app-left-room-bar {
   height: 100%;
 }
 
-.container {
+.holder {
   position: absolute;
   height: 100%;
   width: 100%;
   display: flex;
   background-color: #3a3a3a;
 }
+
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
 .inner {
   position: relative;
   height: 100%;

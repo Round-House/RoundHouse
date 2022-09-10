@@ -7,6 +7,10 @@ mat-sidenav {
   -ms-overflow-style: none;
 }
 
+.container {
+  height: 100%;
+}
+
 ::-webkit-scrollbar-track {
   border-radius: 10px;
   background-color: #424242;

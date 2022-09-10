@@ -9,6 +9,7 @@ import { StreamModule } from './stream/stream.module';
 import { RoomModule } from './room/room.module';
 import { MessageModule } from './stream/message/message.module';
 import { MemberModule } from './room/member/member.module';
+import { PluginsModule } from './plugins/plugins.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -38,6 +39,7 @@ import * as redisStore from 'cache-manager-redis-store';
         RoomModule,
         MessageModule,
         MemberModule,
+        PluginsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

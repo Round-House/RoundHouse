@@ -1,0 +1,15 @@
+{
+  "remotes": {
+    "userStatusFrontend": "http://localhost:4210/remoteEntry.js"
+  },
+  "app": {
+    "room": {
+      "profilePicture": [
+        {
+          "remoteEntry": "http://localhost:4210/remoteEntry.js",
+          "exposedModule": "./StatusIconComponent"
+        }
+      ]
+    }
+  }
+}

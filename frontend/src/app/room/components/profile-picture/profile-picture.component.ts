@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   Component,
   Input,
-  OnInit,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
@@ -10,11 +9,11 @@ import { ComponentData } from 'src/app/services/plugins/componentData.interface'
 import { PluginsService } from 'src/app/services/plugins/plugins.service';
 
 @Component({
-  selector: 'app-message',
-  templateUrl: './message.component.html',
-  styleUrls: ['./message.component.scss'],
+  selector: 'app-profile-picture',
+  templateUrl: './profile-picture.component.html',
+  styleUrls: ['./profile-picture.component.scss'],
 })
-export class MessageComponent implements OnInit, AfterViewInit {
+export class ProfilePictureComponent implements AfterViewInit {
   @Input() account: String = '';
   @Input() message: String = '';
   @Input() color: String = '';
@@ -30,24 +29,11 @@ export class MessageComponent implements OnInit, AfterViewInit {
   })
   viewContainerRef!: ViewContainerRef;
 
-  componentLocation: string[] = ['app', 'room', 'message'];
+  componentLocation: string[] = ['app', 'room', 'profilePicture'];
   /* Plugin Block Setup End */
-
-  background: String = '';
-  repeatAuthor: boolean = false;
 
   constructor(private pluginsService: PluginsService) {
     this.pluginData = [];
-  }
-
-  ngOnInit(): void {
-    if (this.account == this.viewer) {
-      this.background = '#0000001b';
-    }
-
-    if (this.nextAuthor == this.account) {
-      this.repeatAuthor = true;
-    }
   }
 
   ngAfterViewInit(): void {
@@ -62,10 +48,7 @@ export class MessageComponent implements OnInit, AfterViewInit {
       { name: 'viewer', data: this.viewer },
       { name: 'nextAuthor', data: this.nextAuthor },
       { name: 'createdAt', data: this.createdAt },
-      { name: 'background', data: this.background },
-      { name: 'repeatAuthor', data: this.repeatAuthor },
     ];
-
     this.pluginsService.getPlugins(
       this.viewContainerRef,
       this.componentLocation,

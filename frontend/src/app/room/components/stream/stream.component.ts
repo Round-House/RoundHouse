@@ -1,8 +1,16 @@
-import { AfterViewChecked, Component, OnInit } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  OnInit,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import jwt_decode from 'jwt-decode';
 import { RoomService } from '../../services/room/room.service';
 import { InfiniteScrollingService } from '../../services/infiniteScrolling/infinite-scrolling.service';
+import { ComponentData } from 'src/app/services/plugins/componentData.interface';
+import { PluginsService } from 'src/app/services/plugins/plugins.service';
 
 @Component({
   selector: 'app-stream',
@@ -10,6 +18,17 @@ import { InfiniteScrollingService } from '../../services/infiniteScrolling/infin
   styleUrls: ['./stream.component.scss'],
 })
 export class StreamComponent implements OnInit, AfterViewChecked {
+  /* Plugin Block Setup Start */
+  pluginData: ComponentData[];
+
+  @ViewChild('dynamic', {
+    read: ViewContainerRef,
+  })
+  viewContainerRef!: ViewContainerRef;
+
+  componentLocation: string[] = ['app', 'room', 'stream'];
+  /* Plugin Block Setup End */
+
   currentRoom: string | null = this.route.snapshot.queryParamMap.get('address');
 
   messages: any[] = [];
@@ -29,8 +48,11 @@ export class StreamComponent implements OnInit, AfterViewChecked {
   constructor(
     private route: ActivatedRoute,
     private roomService: RoomService,
-    private infiniteScrollingService: InfiniteScrollingService
-  ) {}
+    private infiniteScrollingService: InfiniteScrollingService,
+    private pluginsService: PluginsService
+  ) {
+    this.pluginData = [];
+  }
 
   ngOnInit(): void {
     // Reset variables on room change
@@ -62,6 +84,39 @@ export class StreamComponent implements OnInit, AfterViewChecked {
         this.ngOnInit();
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.generatePlugins();
+  }
+
+  ngAfterViewChecked() {
+    var inner = document.getElementById('inner');
+    var streamScroll = document.getElementById('container');
+
+    // If there are less messages then the hight of the screen, add whitespace
+    if (
+      !this.moreMessages &&
+      streamScroll!!.scrollHeight <= streamScroll!!.clientHeight
+    ) {
+      var whiteSpaceHeight =
+        streamScroll!!.offsetHeight - (inner!!.offsetHeight + 80);
+      if (whiteSpaceHeight < 0) {
+        whiteSpaceHeight = 0;
+      }
+
+      this.whiteSpaceHeight = whiteSpaceHeight;
+    }
+
+    // On first load, go to the bottom of the stream
+    if (
+      this.scrollToBottom &&
+      streamScroll!!.scrollHeight > streamScroll!!.clientHeight &&
+      !this.gettingMessages
+    ) {
+      streamScroll!!.scrollTop = streamScroll!!.scrollHeight;
+      this.scrollToBottom = false;
+    }
   }
 
   // Get the messages from the room
@@ -118,32 +173,23 @@ export class StreamComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  ngAfterViewChecked() {
-    var inner = document.getElementById('inner');
-    var streamScroll = document.getElementById('container');
+  generatePlugins() {
+    this.pluginData = [
+      { name: 'currentRoom', data: this.currentRoom },
+      { name: 'messages', data: this.messages },
+      { name: 'whiteSpaceHeight', data: this.whiteSpaceHeight },
+      { name: 'finishedSetup', data: this.finishedSetup },
+      { name: 'moreMessages', data: this.moreMessages },
+      { name: 'scrollToBottom', data: this.scrollToBottom },
+      { name: 'gettingMessages', data: this.gettingMessages },
+      { name: 'username', data: this.username },
+      { name: 'nextAuthor', data: this.nextAuthor },
+    ];
 
-    // If there are less messages then the hight of the screen, add whitespace
-    if (
-      !this.moreMessages &&
-      streamScroll!!.scrollHeight <= streamScroll!!.clientHeight
-    ) {
-      var whiteSpaceHeight =
-        streamScroll!!.offsetHeight - (inner!!.offsetHeight + 80);
-      if (whiteSpaceHeight < 0) {
-        whiteSpaceHeight = 0;
-      }
-
-      this.whiteSpaceHeight = whiteSpaceHeight;
-    }
-
-    // On first load, go to the bottom of the stream
-    if (
-      this.scrollToBottom &&
-      streamScroll!!.scrollHeight > streamScroll!!.clientHeight &&
-      !this.gettingMessages
-    ) {
-      streamScroll!!.scrollTop = streamScroll!!.scrollHeight;
-      this.scrollToBottom = false;
-    }
+    this.pluginsService.getPlugins(
+      this.viewContainerRef,
+      this.componentLocation,
+      this.pluginData
+    );
   }
 }
