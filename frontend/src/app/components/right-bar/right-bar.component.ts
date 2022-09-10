@@ -14,12 +14,14 @@ export class RightBarComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.subscribe((url: any) => {
-      if (url.url === '/join') {
-        this.joinPage = true;
-      } else if (url.url === undefined) {
-      } else {
-        this.joinPage = false;
-      }
+      try {
+        if (url.url.includes('/join')) {
+          this.joinPage = true;
+        } else if (url.url === undefined) {
+        } else {
+          this.joinPage = false;
+        }
+      } catch (error) {}
     });
   }
 }

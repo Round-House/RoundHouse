@@ -42,14 +42,39 @@ export class LoginComponent implements OnInit {
       .login(this.loginForm.value)
       .pipe(
         map(() => {
-          this.joinService
-            .joinRoom(this.joiningRoom)
-            .pipe(
-              map(() => {
-                this.router.navigate(['']);
-              })
-            )
-            .subscribe();
+          try {
+            if (this.joiningRoom === undefined) {
+              throw 'no room to join';
+            }
+            this.joinService
+              .joinRoom(this.joiningRoom!)
+              .pipe(
+                map(() => {
+                  this.router.navigate(['room'], {
+                    queryParams: {
+                      hub: this.joiningRoom,
+                      address: this.joiningRoom,
+                    },
+                  });
+                })
+              )
+              .subscribe({
+                error: (error) => {
+                  try {
+                    this.router.navigate(['room'], {
+                      queryParams: {
+                        hub: this.joiningRoom,
+                        address: this.joiningRoom,
+                      },
+                    });
+                  } catch (error) {
+                    this.router.navigate(['account']);
+                  }
+                },
+              });
+          } catch (error) {
+            this.router.navigate(['account']);
+          }
         })
       )
       .subscribe();
