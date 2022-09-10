@@ -37,7 +37,10 @@ export class ProfilePictureComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    /* Plugin Block AfterInit Start*/
+    this.generatePlugins();
+  }
+
+  generatePlugins() {
     this.pluginData = [
       { name: 'account', data: this.account },
       { name: 'message', data: this.message },
@@ -51,6 +54,5 @@ export class ProfilePictureComponent implements AfterViewInit {
       this.componentLocation,
       this.pluginData
     );
-    /* Plugin Block AfterInit End*/
   }
 }

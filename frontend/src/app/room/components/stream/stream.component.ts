@@ -87,25 +87,7 @@ export class StreamComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewInit(): void {
-    /* Plugin Block AfterInit Start*/
-    this.pluginData = [
-      { name: 'currentRoom', data: this.currentRoom },
-      { name: 'messages', data: this.messages },
-      { name: 'whiteSpaceHeight', data: this.whiteSpaceHeight },
-      { name: 'finishedSetup', data: this.finishedSetup },
-      { name: 'moreMessages', data: this.moreMessages },
-      { name: 'scrollToBottom', data: this.scrollToBottom },
-      { name: 'gettingMessages', data: this.gettingMessages },
-      { name: 'username', data: this.username },
-      { name: 'nextAuthor', data: this.nextAuthor },
-    ];
-
-    this.pluginsService.getPlugins(
-      this.viewContainerRef,
-      this.componentLocation,
-      this.pluginData
-    );
-    /* Plugin Block AfterInit End*/
+    this.generatePlugins();
   }
 
   ngAfterViewChecked() {
@@ -189,5 +171,25 @@ export class StreamComponent implements OnInit, AfterViewChecked {
           streamScroll!!.scrollTop = 1;
         });
     }
+  }
+
+  generatePlugins() {
+    this.pluginData = [
+      { name: 'currentRoom', data: this.currentRoom },
+      { name: 'messages', data: this.messages },
+      { name: 'whiteSpaceHeight', data: this.whiteSpaceHeight },
+      { name: 'finishedSetup', data: this.finishedSetup },
+      { name: 'moreMessages', data: this.moreMessages },
+      { name: 'scrollToBottom', data: this.scrollToBottom },
+      { name: 'gettingMessages', data: this.gettingMessages },
+      { name: 'username', data: this.username },
+      { name: 'nextAuthor', data: this.nextAuthor },
+    ];
+
+    this.pluginsService.getPlugins(
+      this.viewContainerRef,
+      this.componentLocation,
+      this.pluginData
+    );
   }
 }

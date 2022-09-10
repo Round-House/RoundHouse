@@ -47,7 +47,18 @@ export class InputFieldComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    /* Plugin Block AfterInit Start*/
+    this.generatePlugins();
+  }
+
+  sendMessage() {
+    if (this.inputText.length > 0) {
+      this.roomService.createMessage(this.address!!, this.messageForm.value);
+      this.messageForm.reset();
+      this.inputText = '';
+    }
+  }
+
+  generatePlugins() {
     this.pluginData = [
       { name: 'address', data: this.address },
       { name: 'messageForm', data: this.messageForm },
@@ -57,14 +68,5 @@ export class InputFieldComponent implements OnInit {
       this.componentLocation,
       this.pluginData
     );
-    /* Plugin Block AfterInit End*/
-  }
-
-  sendMessage() {
-    if (this.inputText.length > 0) {
-      this.roomService.createMessage(this.address!!, this.messageForm.value);
-      this.messageForm.reset();
-      this.inputText = '';
-    }
   }
 }

@@ -80,22 +80,7 @@ export class LeftRoomBarComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    /* Plugin Block AfterInit Start*/
-    this.pluginData = [
-      { name: 'treeControl', data: this.treeControl },
-      { name: 'dataSource', data: this.dataSource },
-      { name: 'roomTree', data: this.roomTree },
-      { name: 'rootRoomAddress', data: this.rootRoomAddress },
-      { name: 'rootRoomName', data: this.rootRoomName },
-      { name: 'currentRoom', data: this.currentRoom },
-      { name: 'param', data: this.param },
-    ];
-    this.pluginsService.getPlugins(
-      this.viewContainerRef,
-      this.componentLocation,
-      this.pluginData
-    );
-    /* Plugin Block AfterInit End*/
+    this.generatePlugins();
   }
 
   changeRoom(address: string) {
@@ -115,4 +100,21 @@ export class LeftRoomBarComponent implements OnInit, AfterViewInit {
 
   hasChild = (_: number, node: RoomDto) =>
     !!node.childRooms && node.childRooms.length > 0;
+
+  generatePlugins() {
+    this.pluginData = [
+      { name: 'treeControl', data: this.treeControl },
+      { name: 'dataSource', data: this.dataSource },
+      { name: 'roomTree', data: this.roomTree },
+      { name: 'rootRoomAddress', data: this.rootRoomAddress },
+      { name: 'rootRoomName', data: this.rootRoomName },
+      { name: 'currentRoom', data: this.currentRoom },
+      { name: 'param', data: this.param },
+    ];
+    this.pluginsService.getPlugins(
+      this.viewContainerRef,
+      this.componentLocation,
+      this.pluginData
+    );
+  }
 }

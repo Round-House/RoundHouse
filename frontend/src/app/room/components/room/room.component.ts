@@ -30,12 +30,15 @@ export class RoomComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    /* Plugin Block AfterInit Start*/
+    this.generatePlugins();
+  }
+
+  generatePlugins() {
+    this.pluginData = [];
     this.pluginsService.getPlugins(
       this.viewContainerRef,
       this.componentLocation,
       this.pluginData
     );
-    /* Plugin Block AfterInit End*/
   }
 }
