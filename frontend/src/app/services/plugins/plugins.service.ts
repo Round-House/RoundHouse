@@ -24,25 +24,42 @@ export class PluginsService {
 
   getPlugins(
     viewContainerRef: ViewContainerRef,
+    address: string[],
     componentData: ComponentData[]
   ) {
     if (this.hasPlugins) {
-      const modules: any = this.pluginsFile;
-      modules.app.room.profilePicture.forEach(
+      //Get plugins file
+      var pluginsLocaiton: any = this.pluginsFile;
+
+      //Go to plugins at specific location
+      address.forEach(
+        (location: string) => (pluginsLocaiton = pluginsLocaiton[location])
+      );
+
+      //Get the plugins at the specified address
+      pluginsLocaiton.forEach(
         async (element: { remoteEntry: any; exposedModule: any }) => {
+          //Load plugins with Webpack Module Federtion
           const options: LoadRemoteModuleOptions = {
             type: 'module',
             remoteEntry: element.remoteEntry,
             exposedModule: element.exposedModule,
           };
           const Module = await loadRemoteModule(options);
+
+          //Get the componet from the plugin object
           const pluignComponent: any = Object.keys(Module)[0];
+
+          //Create the plugin component inside the called component
           const component: ComponentRef<any> =
             viewContainerRef!.createComponent(Module[pluignComponent]);
 
+          //Add the data to send off to the plugin components
           componentData.forEach((element: ComponentData) => {
             component.instance[element.name] = element.data;
           });
+
+          //Insert plugin component into host component
           viewContainerRef!.insert(component.hostView);
         }
       );

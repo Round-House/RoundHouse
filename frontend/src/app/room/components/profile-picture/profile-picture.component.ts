@@ -2,21 +2,18 @@ import {
   AfterViewInit,
   Component,
   Input,
-  OnInit,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { ComponentData } from 'src/app/services/plugins/componentData.interface';
 import { PluginsService } from 'src/app/services/plugins/plugins.service';
 
-declare function require(name: string): any;
-
 @Component({
   selector: 'app-profile-picture',
   templateUrl: './profile-picture.component.html',
   styleUrls: ['./profile-picture.component.scss'],
 })
-export class ProfilePictureComponent implements OnInit, AfterViewInit {
+export class ProfilePictureComponent implements AfterViewInit {
   @Input() account: String = '';
   @Input() message: String = '';
   @Input() color: String = '';
@@ -24,6 +21,7 @@ export class ProfilePictureComponent implements OnInit, AfterViewInit {
   @Input() nextAuthor: String = '';
   @Input() createdAt: string = '0';
 
+  /* Plugin Block Setup Start */
   pluginData: ComponentData[];
 
   @ViewChild('dynamic', {
@@ -31,10 +29,15 @@ export class ProfilePictureComponent implements OnInit, AfterViewInit {
   })
   viewContainerRef!: ViewContainerRef;
 
+  componentLocation: string[] = ['app', 'room', 'profilePicture'];
+  /* Plugin Block Setup End */
+
   constructor(private pluginsService: PluginsService) {
     this.pluginData = [];
   }
-  ngOnInit(): void {
+
+  ngAfterViewInit(): void {
+    /* Plugin Block AfterInit Start*/
     this.pluginData = [
       { name: 'account', data: this.account },
       { name: 'message', data: this.message },
@@ -43,9 +46,11 @@ export class ProfilePictureComponent implements OnInit, AfterViewInit {
       { name: 'nextAuthor', data: this.nextAuthor },
       { name: 'createdAt', data: this.createdAt },
     ];
-  }
-
-  ngAfterViewInit(): void {
-    this.pluginsService.getPlugins(this.viewContainerRef, this.pluginData);
+    this.pluginsService.getPlugins(
+      this.viewContainerRef,
+      this.componentLocation,
+      this.pluginData
+    );
+    /* Plugin Block AfterInit End*/
   }
 }
