@@ -13,6 +13,7 @@ import { MessageEntity } from 'src/stream/message/models/message.entity';
 import { StreamEntity } from 'src/stream/models/stream.entity';
 import { UserModule } from 'src/user/user.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { SocketioGateway } from './gateways/socketio.gateway';
 
 @Module({
     imports: [
@@ -29,6 +30,11 @@ import { AuthModule } from 'src/auth/auth.module';
         AuthModule,
     ],
     controllers: [RoomController],
-    providers: [RoomCrudService, RoomMembershipService, RoomStreamService],
+    providers: [
+        RoomCrudService,
+        RoomMembershipService,
+        RoomStreamService,
+        SocketioGateway,
+    ],
 })
 export class RoomModule {}
