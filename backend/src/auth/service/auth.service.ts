@@ -141,7 +141,7 @@ export class AuthService {
         return from(this.jwtService.signAsync({ user }));
     }
 
-    private getUser(usernameOrEmail: string): Observable<User> {
+    getUser(usernameOrEmail: string): Observable<User> {
         //Could not find email check function, using regex: https://www.emailregex.com/
         const emailCheck =
             /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -166,5 +166,9 @@ export class AuthService {
                 }),
             );
         }
+    }
+
+    verifyJwt(jwt: string): Observable<any> {
+        return from(this.jwtService.verifyAsync(jwt));
     }
 }

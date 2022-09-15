@@ -11,7 +11,6 @@ import { MemberEntity } from 'src/room/member/models/member.entity';
 import { MemberRole } from 'src/room/member/models/member.interface';
 import { TreeRoomDto } from 'src/room/models';
 import { RoomEntity } from 'src/room/models/room.entity';
-import { Room } from 'src/room/models/room.interface';
 import { UserEntity } from 'src/user/models/user.entity';
 import { DataSource, Repository } from 'typeorm';
 
@@ -40,6 +39,43 @@ export class RoomMembershipService {
                 return treeRoomList;
             }),
             catchError((err) => throwError(() => err)),
+        );
+    }
+
+    getAllRooms(user: UserEntity): Observable<RoomEntity[]> {
+        return from(
+            this.memberRepository.find({
+                where: { user: { username: user.username } },
+                relations: ['room'],
+            }),
+        ).pipe(
+            map((memberships: MemberEntity[]) => {
+                var rooms: RoomEntity[];
+
+                memberships.forEach((membership: MemberEntity) => {
+                    rooms.concat(membership.room);
+                });
+                return rooms;
+            }),
+        );
+    }
+
+    isInRoom(user: UserEntity, roomAddress: string): Observable<boolean> {
+        return from(
+            this.memberRepository.findOne({
+                where: {
+                    user: { username: user.username },
+                    room: { roomAddress: roomAddress },
+                },
+            }),
+        ).pipe(
+            map((membership: MemberEntity) => {
+                if (membership) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }),
         );
     }
 
