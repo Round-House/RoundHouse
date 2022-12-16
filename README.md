@@ -1,12 +1,12 @@
 # RoundHouse
 
-***Roundhouse is currently under early development, features may not be implemented and plans may change.***
+***Development has been put on indefinite pause.***
 
 RoundHouse is a peer to peer group chat platform using the Activity Pub protocol currently under early development. Servers can allow users to create chat rooms, and anyone on a server in the federated network will be able to join and interact in the room!
 
 ## Features
 
-### Activity Pub
+### Activity Pub (Not yet implemented)
 
 Being meant for everything from online communities to work environments, Roundhouse is intended to bring groups together. Servers and communities can choose be federated, allowing for anyone on the fediverse to join your community. You can create a private group based on what you need.
 
